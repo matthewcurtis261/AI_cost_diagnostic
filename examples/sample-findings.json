@@ -48,6 +48,27 @@
     "coverage_notes": [
       "Scanned whole repo; node_modules and dist excluded",
       "1 call site uses runtime model selection — volume requires telemetry or config access"
-    ]
+    ],
+    "coverage": {
+      "scan_mode": "full",
+      "excluded": [
+        {
+          "path": "node_modules",
+          "reason": "Third-party dependencies; not application source",
+          "category": "standard_exclude"
+        },
+        {
+          "path": "dist",
+          "reason": "Build output",
+          "category": "binary_or_generated"
+        }
+      ],
+      "blind_spots": [
+        "Runtime-only model selection (DB or feature flags)",
+        ".env files and secret stores are not read — env var references in code only"
+      ],
+      "files_scanned": 842,
+      "passes_completed": ["A", "B", "E"]
+    }
   }
 }

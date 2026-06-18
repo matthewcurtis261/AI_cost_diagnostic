@@ -49,7 +49,13 @@ Trace one level of indirection when calls go through internal wrappers.
 
 ### Pass C — Subagent fan-out (large repos)
 
-If the repo has **>500 source files** or **>100 Pass A hits**, spawn `Task` explore subagents — one per top-level package/service directory. Each returns partial findings; you merge and dedupe.
+If the repo has **>500 source files** or **>100 Pass A hits**, spawn `Task` explore subagents — one per top-level package/service directory. See `docs/monorepo-strategy.md` for the full protocol.
+
+Each subagent returns partial findings; the coordinator:
+
+1. Concatenates and **dedupes** per `rules/dedup-rules.json` (same file + call_type → keep highest-scoring finding).
+2. Keeps **dependency** findings (`agent_framework`) separate from billable call sites.
+3. Renumbers ids `f001`, `f002`, … and **reconciles** `summary` from findings.
 
 ### Pass D — Gap fill
 
@@ -60,9 +66,30 @@ For generic HTTP clients or unmatched files that smell like LLM usage, search fo
 1. Write `/workspace/agent/ai-usage-findings.json` matching the schema.
 2. Assign finding ids `f001`, `f002`, … (zero-padded, min 3 digits).
 3. Populate `summary.providers`, `summary.models_detected`, `summary.likely_dynamic_models`, `summary.call_types`.
-4. Add `coverage_notes` for blind spots (dynamic models, external services, excluded paths).
-5. Validate mentally against schema rules — every finding needs `evidence` quoting actual code.
-6. Send the file to the user via `send_file` (or equivalent MCP tool).
+4. Add **`summary.coverage`** (structured) and **`summary.coverage_notes`** (human-readable):
+   - `coverage.excluded` — every excluded path with `reason` and `category` (see schema).
+   - `coverage.blind_spots` — runtime model selection, unmounted `.env`, external services, etc.
+   - `coverage.scan_mode` — `full`, `scoped`, or `partial`.
+5. Apply **confidence rubric** (`rules/confidence-rubric.json`) — see table below.
+6. **Deduplicate** before emit — same call site = one finding.
+7. Validate mentally against schema rules — every finding needs `evidence` quoting actual code.
+8. Send the file to the user via `send_file` (or equivalent MCP tool).
+
+## Confidence rubric
+
+| Level | When to use |
+|---|---|
+| **high** | Direct API method in evidence (`.create(`, `messages.create`, etc.); static model or `config_ref` with config evidence |
+| **medium** | Wrapper/delegate (`wrapper` set); import/client init only; `dynamic` model; indirect HTTP reference |
+| **low** | Model-name grep only; env var reference only; ambiguous/generic fetch; `call_type: unknown` |
+
+Dependency lines in `requirements.txt` / `package.json` may be **high** with `call_type: agent_framework` when evidence is the manifest line.
+
+## Dedup rules
+
+- Same `{file}::{call_type}` with overlapping lines → **one finding** (keep direct call over import/wrapper).
+- Dependency manifest + runtime call in same file → **two findings** (different `call_type`).
+- After subagent merge, renumber ids and reconcile summary counts.
 
 ## Output rules
 

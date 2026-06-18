@@ -15,9 +15,24 @@ From the `diagnostic_agent` directory:
 
 ```bash
 pnpm install
+pnpm run discover -- --repo /path/to/your/repo
+```
+
+Or step-by-step:
+
+```bash
 pnpm run setup -- --repo /path/to/your/repo
 pnpm run scan
 ```
+
+**CI (no Nanoclaw):**
+
+```bash
+pnpm run discover -- --repo /path/to/your/repo --static --ci --output ai-usage-findings.json
+pnpm run check -- --findings ai-usage-findings.json
+```
+
+See [ci-setup.md](ci-setup.md) for exit codes and GitHub Actions.
 
 Or after building:
 
@@ -50,11 +65,15 @@ pnpm run scan -- --scope src/services,backend/llm
 
 ## Output
 
-The agent writes `ai-usage-findings.json` to its workspace (`groups/diagnostic-agent/` in Nanoclaw) and may send it via chat. Validate locally:
+The agent writes `ai-usage-findings.json` to its workspace (`groups/diagnostic-agent/` in Nanoclaw) and may send it via chat. Validate and clean up locally:
 
 ```bash
 pnpm run validate-findings -- path/to/ai-usage-findings.json
+pnpm run normalize-findings -- path/to/ai-usage-findings.json --output ai-usage-findings.cleaned.json
+pnpm run validate-findings -- --strict ai-usage-findings.cleaned.json
 ```
+
+See [reliability.md](reliability.md) for dedup rules, confidence rubric, and coverage reporting.
 
 Schema: `skills/ai-spend-discovery/schema/findings.schema.json`
 

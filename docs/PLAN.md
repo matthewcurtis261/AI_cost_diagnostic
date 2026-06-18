@@ -425,15 +425,15 @@ Phase 1 findings tell you **where**; telemetry tells you **what** and **how much
 - [x] Test against 2–3 open-source repos with known AI usage (fixture repos + documented OSS targets).
 
 ### Milestone 2 — Reliability
-- [ ] Dedup + confidence scoring rules.
-- [ ] Monorepo subagent strategy.
-- [ ] `validate-findings` script.
-- [ ] Coverage self-report (what was excluded and why).
+- [x] Dedup + confidence scoring rules.
+- [x] Monorepo subagent strategy.
+- [x] `validate-findings` script (schema + semantic checks).
+- [x] Coverage self-report (what was excluded and why).
 
 ### Milestone 3 — Productization
-- [ ] One-command setup script (`diagnostic_agent setup --repo /path/to/code`).
-- [ ] CI-friendly mode (non-interactive, exit codes on findings).
-- [ ] Documentation for common false positives.
+- [x] One-command setup script (`diagnostic_agent discover --repo /path/to/code`).
+- [x] CI-friendly mode (non-interactive, exit codes on findings).
+- [x] Documentation for common false positives.
 
 ### Milestone 4 — Telemetry layer *(optional, user opt-in)*
 - [x] `event.schema.json` — input payload + token counts; schema rejects output-content fields.
@@ -474,4 +474,4 @@ Using Nanoclaw to find AI API usage is **feasible and well-aligned** with the pr
 
 Spend estimation starts code-only; users who opt in add a **telemetry layer** that records actual LLM inputs and token counts (output tokens yes, output content no). That split keeps the default path simple and privacy-preserving while unlocking accurate cost math and later input-aware optimization.
 
-Next step: Milestone 6 (input-aware analysis) using telemetry inputs, or Milestone 2 reliability polish.
+Next step: Milestone 6 (input-aware analysis with telemetry) or Milestone 4 ingest adapter.

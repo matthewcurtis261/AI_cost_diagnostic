@@ -4,7 +4,21 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-export const DIAGNOSTIC_AGENT_ROOT = path.resolve(__dirname, '..', '..');
+
+function resolveProjectRoot(): string {
+  const candidates = [
+    path.resolve(__dirname, '..', '..', '..'),
+    path.resolve(__dirname, '..', '..'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(path.join(candidate, 'package.json'))) {
+      return candidate;
+    }
+  }
+  return path.resolve(__dirname, '..', '..');
+}
+
+export const DIAGNOSTIC_AGENT_ROOT = resolveProjectRoot();
 export const SKILL_NAME = 'ai-spend-discovery';
 export const SKILL_SOURCE_DIR = path.join(DIAGNOSTIC_AGENT_ROOT, 'skills', SKILL_NAME);
 export const DIAGNOSTIC_GROUP_FOLDER = 'diagnostic-agent';

@@ -26,6 +26,11 @@
         "excluded_paths": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "exclusions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/exclusion" },
+          "description": "Structured exclusion list with reasons"
         }
       }
     },
@@ -57,11 +62,57 @@
         "coverage_notes": {
           "type": "array",
           "items": { "type": "string" }
+        },
+        "coverage": {
+          "$ref": "#/definitions/coverage_report"
         }
       }
     }
   },
   "definitions": {
+    "exclusion": {
+      "type": "object",
+      "required": ["path", "reason", "category"],
+      "additionalProperties": false,
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "category": {
+          "type": "string",
+          "enum": [
+            "standard_exclude",
+            "mount_blocked",
+            "user_scope",
+            "binary_or_generated",
+            "other"
+          ]
+        }
+      }
+    },
+    "coverage_report": {
+      "type": "object",
+      "required": ["scan_mode", "excluded", "blind_spots"],
+      "additionalProperties": false,
+      "properties": {
+        "scan_mode": {
+          "type": "string",
+          "enum": ["full", "scoped", "partial"]
+        },
+        "excluded": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/exclusion" }
+        },
+        "blind_spots": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "files_scanned": { "type": "integer", "minimum": 0 },
+        "passes_completed": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
     "finding": {
       "type": "object",
       "required": [

@@ -1,0 +1,35 @@
+{
+  "schema_version": "0.1.0",
+  "levels": {
+    "high": {
+      "description": "Direct API call with clear evidence (SDK method, HTTP endpoint, or embed call)",
+      "criteria": [
+        "Evidence contains a provider API method (.create, .completions, messages.create, invoke, etc.)",
+        "Static model id OR config_ref with config file evidence",
+        "Dependency manifest with separate call-site finding for same provider"
+      ]
+    },
+    "medium": {
+      "description": "Indirect usage, wrapper delegation, or partial evidence",
+      "criteria": [
+        "Call goes through an internal wrapper (wrapper field set)",
+        "Import or client initialization without API invocation in same finding",
+        "HTTP endpoint reference without full SDK context",
+        "model is dynamic or config_ref without reading config"
+      ]
+    },
+    "low": {
+      "description": "Weak or ambiguous signal — may be false positive",
+      "criteria": [
+        "Model name pattern only, no API client",
+        "Env var reference only",
+        "Generic fetch with variable URL",
+        "call_type unknown"
+      ]
+    }
+  },
+  "overrides": {
+    "agent_framework": "medium unless manifest-only evidence (dependency declaration)",
+    "dependency_only": "high allowed for requirements.txt / package.json lines with version pin"
+  }
+}

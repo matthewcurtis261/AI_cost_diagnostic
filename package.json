@@ -11,9 +11,12 @@
     "dev": "tsx cli/index.ts",
     "setup": "tsx cli/index.ts setup",
     "scan": "tsx cli/index.ts scan",
+    "discover": "tsx cli/index.ts discover",
+    "check": "tsx cli/index.ts check",
     "estimate": "tsx cli/index.ts estimate",
     "test": "node --import tsx --test tests/**/*.test.ts",
     "validate-findings": "tsx skills/ai-spend-discovery/scripts/validate-findings.ts",
+    "normalize-findings": "tsx skills/ai-spend-discovery/scripts/normalize-findings.ts",
     "validate-events": "tsx telemetry/scripts/validate-events.ts",
     "validate-estimate": "tsx estimate/scripts/validate-estimate.ts"
   },

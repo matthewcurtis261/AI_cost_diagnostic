@@ -1,0 +1,34 @@
+{
+  "schema_version": "0.1.0",
+  "rules": [
+    {
+      "id": "same_call_site",
+      "description": "Same file + call_type + overlapping lines = one finding",
+      "action": "keep_highest_score",
+      "score_factors": [
+        "confidence tier (high > medium > low)",
+        "direct .create( in evidence",
+        "billable call site vs import-only",
+        "no wrapper field"
+      ]
+    },
+    {
+      "id": "wrapper_vs_direct",
+      "description": "Wrapper/delegate finding and direct API call in same file",
+      "action": "keep_direct_call",
+      "note": "Wrapper finding may remain if it documents a different entry point (e.g. HTTP handler)"
+    },
+    {
+      "id": "dependency_vs_usage",
+      "description": "Dependency manifest vs runtime call site",
+      "action": "keep_both",
+      "note": "Use call_type agent_framework for requirements.txt / package.json; chat_completion for .create("
+    },
+    {
+      "id": "monorepo_merge",
+      "description": "After subagent fan-out, coordinator merges partial lists",
+      "action": "dedupe_by_billable_key",
+      "key": "{file}::{call_type}"
+    }
+  ]
+}
