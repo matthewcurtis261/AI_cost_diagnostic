@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { parseAnalyzeInputsArgs, runAnalyzeInputs } from './analyze-inputs.js';
 import { parseCheckArgs, runCheck } from './check.js';
 import { parseDiscoverArgs, runDiscover } from './discover.js';
 import { defaultEventsPath, parseEstimateArgs, runEstimate } from './estimate.js';
@@ -15,6 +16,7 @@ Usage:
   diagnostic-agent scan [--scope dir1,dir2] [--ci] [--output <path>] [--nanoclaw-root <path>]
   diagnostic-agent check --findings <path> [options]
   diagnostic-agent estimate --findings <path> [options]
+  diagnostic-agent analyze-inputs --events <path> [options]
 
 Commands:
   discover  One-command setup + scan (or static CI scan)
@@ -22,6 +24,7 @@ Commands:
   scan      Trigger ai-spend-discovery scan via Nanoclaw CLI channel
   check     Validate findings + optional policy gates (CI exit codes)
   estimate  Estimate AI spend from findings ± telemetry events
+  analyze-inputs  Per-request what-if savings using input-aware quality analysis
 
 Discover options:
   --repo <path>             Target codebase (required)
@@ -54,10 +57,27 @@ Estimate options:
   --telemetry               Use telemetry mode (requires events file)
   --output <path>           Write spend-estimate.json
   --assumptions <path>      Volume/token assumptions for code-only mode
+  --pricing <path>           Override proprietary pricing table (models.json)
+  --open-pricing <path>      Override open/self-hosted pricing (models-open.json)
+  --no-open-pricing          Exclude DeepSeek/Llama/Qwen etc. from pricing + savings
   --calls-per-month <n>     Default monthly call volume (code-only, default: 10000)
   --default-model <id>      Fallback model for config_ref/dynamic findings
   --alternatives <a,b,c>    Models to compare for savings
   --since / --until         Filter telemetry events by ISO timestamp
+  --json                    Print full JSON report to stdout
+
+Analyze-inputs options:
+  --events <path>           Telemetry JSONL (required; default ~/.diagnostic_agent/events.jsonl)
+  --output <path>           Write input-analysis.json
+  --preset <name>           conservative | balanced | aggressive (default: balanced)
+  --quality-floor <0-1>     Override minimum quality vs best model
+  --quality-sacrifice <n>   Override acceptable quality loss per 1% cost saved
+  --alternatives <a,b,c>    Candidate models for what-if comparison
+  --pricing <path>          Override proprietary pricing table
+  --open-pricing <path>     Override open/self-hosted pricing
+  --no-open-pricing         Exclude open models from comparison
+  --quality-scores <path>   Override quality score snapshot
+  --since / --until         Filter events by ISO timestamp
   --json                    Print full JSON report to stdout
 
 Exit codes:
@@ -79,6 +99,7 @@ function parseGlobalArgs(argv: string[]): {
   mountName?: string;
   scope?: string[];
   estimateArgs: string[];
+  analyzeInputsArgs: string[];
   checkArgs: string[];
   discoverArgs: string[];
   scanCi?: boolean;
@@ -92,6 +113,7 @@ function parseGlobalArgs(argv: string[]): {
   let mountName: string | undefined;
   let scope: string[] | undefined;
   const estimateArgs: string[] = [];
+  const analyzeInputsArgs: string[] = [];
   const checkArgs: string[] = [];
   const discoverArgs: string[] = [];
   let scanCi: boolean | undefined;
@@ -102,6 +124,29 @@ function parseGlobalArgs(argv: string[]): {
   for (let i = 1; i < argv.length; i++) {
     const key = argv[i];
     const val = argv[i + 1];
+
+    if (command === 'analyze-inputs') {
+      analyzeInputsArgs.push(key);
+      if (val && !key.startsWith('--json')) {
+        if (
+          key === '--events' ||
+          key === '--output' ||
+          key === '--since' ||
+          key === '--until' ||
+          key === '--pricing' ||
+          key === '--open-pricing' ||
+          key === '--quality-scores' ||
+          key === '--alternatives' ||
+          key === '--preset' ||
+          key === '--quality-floor' ||
+          key === '--quality-sacrifice'
+        ) {
+          analyzeInputsArgs.push(val);
+          i++;
+        }
+      }
+      continue;
+    }
 
     if (command === 'estimate') {
       estimateArgs.push(key);
@@ -116,6 +161,7 @@ function parseGlobalArgs(argv: string[]): {
           key === '--output' ||
           key === '--assumptions' ||
           key === '--pricing' ||
+          key === '--open-pricing' ||
           key === '--calls-per-month' ||
           key === '--default-model' ||
           key === '--alternatives' ||
@@ -206,6 +252,7 @@ function parseGlobalArgs(argv: string[]): {
     mountName,
     scope,
     estimateArgs,
+    analyzeInputsArgs,
     checkArgs,
     discoverArgs,
     scanCi,
@@ -229,6 +276,7 @@ async function main(): Promise<void> {
     mountName,
     scope,
     estimateArgs,
+    analyzeInputsArgs,
     checkArgs,
     discoverArgs,
     scanCi,
@@ -302,6 +350,9 @@ async function main(): Promise<void> {
         quiet: parsed.quiet,
       });
       process.exit(result.exitCode);
+    } else if (command === 'analyze-inputs') {
+      const parsed = parseAnalyzeInputsArgs(analyzeInputsArgs);
+      runAnalyzeInputs(parsed);
     } else if (command === 'estimate') {
       const parsed = parseEstimateArgs(estimateArgs);
       if (!parsed.findings) {
@@ -319,6 +370,8 @@ async function main(): Promise<void> {
         outputPath: parsed.output,
         assumptionsPath: parsed.assumptions,
         pricingPath: parsed.pricing,
+        openPricingPath: parsed.openPricing,
+        includeOpenPricing: parsed.includeOpenPricing,
         callsPerMonth: parsed.callsPerMonth,
         defaultModel: parsed.defaultModel,
         alternatives: parsed.alternatives,

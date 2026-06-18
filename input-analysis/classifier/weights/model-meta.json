@@ -1,0 +1,32 @@
+{
+  "schema_version": "0.1.0",
+  "base_model": "distilbert-base-uncased",
+  "num_labels": 20,
+  "max_length": 256,
+  "threshold": 0.35,
+  "labels": [
+    "mcq_knowledge",
+    "expert_science",
+    "math",
+    "multi_step_reasoning",
+    "code_completion",
+    "repo_engineering",
+    "tool_call",
+    "instruction_following",
+    "writing",
+    "roleplay",
+    "extraction",
+    "reasoning_chat",
+    "coding_chat",
+    "stem_chat",
+    "humanities_chat",
+    "factuality",
+    "long_context_retrieval",
+    "rag_synthesis",
+    "agentic",
+    "commonsense"
+  ],
+  "head_file": "classifier-head.pt",
+  "trained": true,
+  "notes": "Fine-tuned DistilBERT classification head. Takes precedence over classifier-head.json."
+}

@@ -17,7 +17,8 @@
     "scripts/**/*.ts",
     "skills/**/*.ts",
     "telemetry/**/*.ts",
-    "estimate/**/*.ts"
+    "estimate/**/*.ts",
+    "input-analysis/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "tests"]
 }

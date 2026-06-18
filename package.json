@@ -18,7 +18,16 @@
     "validate-findings": "tsx skills/ai-spend-discovery/scripts/validate-findings.ts",
     "normalize-findings": "tsx skills/ai-spend-discovery/scripts/normalize-findings.ts",
     "validate-events": "tsx telemetry/scripts/validate-events.ts",
-    "validate-estimate": "tsx estimate/scripts/validate-estimate.ts"
+    "validate-estimate": "tsx estimate/scripts/validate-estimate.ts",
+    "fetch-quality-scores": "python input-analysis/python/fetch_quality_scores.py",
+    "build-quality-scores-from-seed": "python input-analysis/python/build_snapshot_from_seed.py",
+    "validate-quality-scores": "tsx input-analysis/scripts/validate-quality-scores.ts",
+    "build-classifier-data": "python input-analysis/python/build_training_data.py",
+    "bootstrap-classifier": "tsx input-analysis/scripts/bootstrap-classifier-weights.ts",
+    "train-classifier": "python input-analysis/python/train_classifier.py --build-data --seed-only",
+    "classify-inputs": "python input-analysis/python/classify.py",
+    "analyze-inputs": "tsx cli/index.ts analyze-inputs",
+    "validate-analyze-inputs": "tsx input-analysis/scripts/validate-analyze-inputs.ts"
   },
   "engines": {
     "node": ">=20"

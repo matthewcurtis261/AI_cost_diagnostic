@@ -1,4 +1,4 @@
-import type { EstimateLineItem, PricingTable, SavingsOpportunity } from './types.js';
+import type { EstimateLineItem, ModelPricing, PricingTable, SavingsOpportunity } from './types.js';
 import { calculateCost, getModelPricing, roundUsd, supportsCallType } from './pricing.js';
 
 export function buildSavingsOpportunities(
@@ -37,9 +37,7 @@ export function buildSavingsOpportunities(
         savings_usd: savingsUsd,
         savings_percent: savingsPercent,
         compatible,
-        notes: compatible
-          ? undefined
-          : [`${alternativeModel} does not support call_type ${item.call_type}`],
+        notes: buildSavingsNotes(compatible, item.call_type, alternativeModel, altPricing),
       });
     }
   }
@@ -60,4 +58,22 @@ function resolveAlternatives(
 
   const defaults = pricing.default_alternatives?.[item.call_type] ?? [];
   return defaults.filter((model) => model !== item.model);
+}
+
+function buildSavingsNotes(
+  compatible: boolean,
+  callType: string,
+  alternativeModel: string,
+  altPricing: ModelPricing | undefined,
+): string[] | undefined {
+  if (!compatible) {
+    return [`${alternativeModel} does not support call_type ${callType}`];
+  }
+  if (altPricing?.deployment === 'self_hosted') {
+    return ['Self-hosted compute baseline ($0.20/Mtok in+out)'];
+  }
+  if (altPricing?.api_via) {
+    return [`API via ${altPricing.api_via}`];
+  }
+  return undefined;
 }

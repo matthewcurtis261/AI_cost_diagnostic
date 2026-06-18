@@ -1,0 +1,27 @@
+{
+  "schema_version": "0.1.0",
+  "description": "Map telemetry/pricing model ids to Open LLM Leaderboard fullname entries.",
+  "aliases": {
+    "gpt-4o": ["GPT-4o-2024-11-20", "GPT-4o", "gpt-4o-2024-08-06"],
+    "gpt-4o-mini": ["GPT-4o-mini-2024-07-18", "GPT-4o-mini"],
+    "gpt-4.1": ["GPT-4.1-2025-04-14", "GPT-4.1"],
+    "gpt-4.1-mini": ["GPT-4.1-mini-2025-04-14", "GPT-4.1-mini"],
+    "gpt-4.1-nano": ["GPT-4.1-nano-2025-04-14", "GPT-4.1-nano"],
+    "claude-3-5-sonnet-20241022": ["Claude 3.5 Sonnet (20241022)", "claude-3-5-sonnet-20241022"],
+    "claude-3-5-haiku-20241022": ["Claude 3.5 Haiku (20241022)", "claude-3-5-haiku-20241022"],
+    "claude-sonnet-4-20250514": ["Claude Sonnet 4", "claude-sonnet-4-20250514"],
+    "claude-haiku-4-20250514": ["Claude Haiku 4", "claude-haiku-4-20250514"],
+    "gemini-2.0-flash": ["Gemini 2.0 Flash", "gemini-2.0-flash"],
+    "gemini-2.5-pro": ["Gemini 2.5 Pro", "gemini-2.5-pro"],
+    "deepseek-chat": ["DeepSeek-V3", "deepseek-ai/DeepSeek-V3", "DeepSeek-V3-0324"],
+    "deepseek-reasoner": ["DeepSeek-R1", "deepseek-ai/DeepSeek-R1"],
+    "llama-3.1-8b-instruct": ["meta-llama/Llama-3.1-8B-Instruct", "Llama-3.1-8B-Instruct"],
+    "llama-3.1-70b-instruct": ["meta-llama/Llama-3.1-70B-Instruct", "Llama-3.1-70B-Instruct"],
+    "llama-3.3-70b-instruct": ["meta-llama/Llama-3.3-70B-Instruct", "Llama-3.3-70B-Instruct"],
+    "qwen2.5-72b-instruct": ["Qwen/Qwen2.5-72B-Instruct", "Qwen2.5-72B-Instruct"],
+    "qwen2.5-7b-instruct": ["Qwen/Qwen2.5-7B-Instruct", "Qwen2.5-7B-Instruct"],
+    "mistral-small": ["mistralai/Mistral-Small-Instruct-2409", "Mistral Small"],
+    "mistral-large": ["mistralai/Mistral-Large-Instruct-2407", "Mistral Large"],
+    "phi-4": ["microsoft/phi-4", "Phi-4"]
+  }
+}

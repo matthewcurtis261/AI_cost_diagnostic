@@ -1,0 +1,37 @@
+{
+  "schema_version": "0.1.0",
+  "trained_at": "2026-06-18T21:19:53+00:00",
+  "base_model": "distilbert-base-uncased",
+  "epochs": 4,
+  "train_rows": 55,
+  "val_rows": 9,
+  "threshold": 0.35,
+  "metrics": {
+    "precision_micro": 0.1075268817192739,
+    "recall_micro": 0.7142857142346939,
+    "f1_micro": 0.18691588761953007,
+    "subset_accuracy": 0.0
+  },
+  "label_support": {
+    "instruction_following": 7,
+    "writing": 5,
+    "math": 6,
+    "extraction": 9,
+    "factuality": 3,
+    "reasoning_chat": 5,
+    "tool_call": 5,
+    "mcq_knowledge": 4,
+    "multi_step_reasoning": 4,
+    "stem_chat": 4,
+    "expert_science": 5,
+    "humanities_chat": 3,
+    "repo_engineering": 5,
+    "coding_chat": 4,
+    "roleplay": 3,
+    "rag_synthesis": 3,
+    "long_context_retrieval": 3,
+    "agentic": 3,
+    "commonsense": 3,
+    "code_completion": 6
+  }
+}

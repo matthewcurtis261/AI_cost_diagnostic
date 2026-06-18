@@ -451,9 +451,12 @@ Phase 1 findings tell you **where**; telemetry tells you **what** and **how much
 - [x] Savings prediction: compare observed input profiles (from telemetry) against alternative model pricing.
 
 ### Milestone 6 — Input-aware analysis *(depends on telemetry)*
+- [x] **6a** Quality score matrix (`fetch-quality-scores`, OLL snapshot, open-model pricing, aliases).
+- [x] **6b** Merge open/self-hosted pricing into estimate engine.
+- [x] **6c** DistilBERT classifier (committed bootstrap weights, training pipeline, `classify.py` subprocess).
+- [x] **6d** `analyze-inputs` CLI — offline per-request what-if savings report.
 - [ ] Prompt size breakdown (system vs. user vs. tool context).
 - [ ] Identify high-cost input patterns (long RAG chunks, redundant system prompts).
-- [ ] Model-downgrade candidates based on input complexity heuristics.
 
 ---
 
@@ -474,4 +477,4 @@ Using Nanoclaw to find AI API usage is **feasible and well-aligned** with the pr
 
 Spend estimation starts code-only; users who opt in add a **telemetry layer** that records actual LLM inputs and token counts (output tokens yes, output content no). That split keeps the default path simple and privacy-preserving while unlocking accurate cost math and later input-aware optimization.
 
-Next step: Milestone 6 (input-aware analysis with telemetry) or Milestone 4 ingest adapter.
+Next step: Milestone 6 follow-ups (prompt breakdown, high-cost patterns) or Milestone 4 ingest adapter.

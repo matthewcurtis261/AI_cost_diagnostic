@@ -57,6 +57,9 @@ export interface ModelPricing {
   call_types: string[];
   input_per_million: number;
   output_per_million: number;
+  deployment?: 'api' | 'self_hosted';
+  api_via?: string;
+  quality_score_key?: string;
 }
 
 export interface PricingTable {
@@ -64,8 +67,15 @@ export interface PricingTable {
   currency: string;
   unit: string;
   as_of: string;
+  notes?: string;
   models: Record<string, ModelPricing>;
   default_alternatives?: Record<string, string[]>;
+  pricing_sources?: string[];
+  self_hosted_compute?: {
+    input_per_million: number;
+    output_per_million: number;
+    notes?: string;
+  };
 }
 
 export interface UsageAssumptions {
@@ -127,6 +137,7 @@ export interface EstimateReport {
     pricing_as_of: string;
     currency: string;
     period: 'month' | 'day' | 'event_window';
+    pricing_sources?: string[];
   };
   line_items: EstimateLineItem[];
   totals: UsageBreakdown & { total_usd: number };
@@ -140,6 +151,9 @@ export interface EstimateOptions {
   outputPath?: string;
   assumptionsPath?: string;
   pricingPath?: string;
+  openPricingPath?: string;
+  /** When false, only proprietary models from models.json are used. Default: true. */
+  includeOpenPricing?: boolean;
   callsPerMonth?: number;
   defaultModel?: string;
   alternatives?: string[];

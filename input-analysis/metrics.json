@@ -1,0 +1,162 @@
+{
+  "schema_version": "0.1.0",
+  "description": "Granular quality metric families for input-aware diagnostic routing. Scores are normalized 0-1.",
+  "metrics": [
+    {
+      "id": "mcq_knowledge",
+      "label": "General knowledge (MCQ)",
+      "benchmarks": ["MMLU", "MMLU-Pro"],
+      "oll_columns": ["MMLU-PRO Raw", "MMLU-PRO"],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "expert_science",
+      "label": "Expert science reasoning",
+      "benchmarks": ["GPQA Diamond", "HLE"],
+      "oll_columns": ["GPQA Raw", "GPQA"],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "math",
+      "label": "Mathematical reasoning",
+      "benchmarks": ["GSM8K", "MATH-500", "AIME", "MATH Lvl 5"],
+      "oll_columns": ["MATH Lvl 5 Raw", "MATH Lvl 5"],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "multi_step_reasoning",
+      "label": "Multi-step reasoning",
+      "benchmarks": ["BBH", "MuSR"],
+      "oll_columns": ["BBH Raw", "BBH", "MUSR Raw", "MUSR"],
+      "score_kind": "accuracy",
+      "combine": "max"
+    },
+    {
+      "id": "code_completion",
+      "label": "Function-level coding",
+      "benchmarks": ["HumanEval", "MBPP", "LiveCodeBench"],
+      "oll_columns": [],
+      "score_kind": "pass_at_k",
+      "coverage_note": "Not on Open LLM Leaderboard v2; filled from manual seeds when available"
+    },
+    {
+      "id": "repo_engineering",
+      "label": "Repo-level software engineering",
+      "benchmarks": ["SWE-bench Verified"],
+      "oll_columns": [],
+      "score_kind": "resolve_rate",
+      "coverage_note": "Requires separate SWE-bench leaderboard fetch"
+    },
+    {
+      "id": "tool_call",
+      "label": "Tool / function calling",
+      "benchmarks": ["BFCL v4"],
+      "oll_columns": [],
+      "score_kind": "ast_match",
+      "coverage_note": "Requires separate BFCL leaderboard fetch"
+    },
+    {
+      "id": "instruction_following",
+      "label": "Verifiable instruction following",
+      "benchmarks": ["IFEval", "FollowBench"],
+      "oll_columns": ["IFEval Raw", "IFEval"],
+      "score_kind": "strict_pass"
+    },
+    {
+      "id": "writing",
+      "label": "Writing / creative generation",
+      "benchmarks": ["MT-Bench writing", "Arena Writing"],
+      "oll_columns": [],
+      "score_kind": "arena_elo",
+      "arena_category": "creative_writing"
+    },
+    {
+      "id": "roleplay",
+      "label": "Roleplay / persona",
+      "benchmarks": ["MT-Bench roleplay", "Arena"],
+      "oll_columns": [],
+      "score_kind": "arena_elo",
+      "arena_category": "roleplay"
+    },
+    {
+      "id": "extraction",
+      "label": "Structured extraction",
+      "benchmarks": ["MT-Bench extraction"],
+      "oll_columns": [],
+      "score_kind": "judge_score",
+      "coverage_note": "MT-Bench category; manual seed only in v0.1.0"
+    },
+    {
+      "id": "reasoning_chat",
+      "label": "Conversational reasoning",
+      "benchmarks": ["MT-Bench reasoning", "Arena Hard Prompts"],
+      "oll_columns": [],
+      "score_kind": "arena_elo",
+      "arena_category": "hard_prompts"
+    },
+    {
+      "id": "coding_chat",
+      "label": "Conversational coding",
+      "benchmarks": ["MT-Bench coding", "Arena Coding"],
+      "oll_columns": [],
+      "score_kind": "arena_elo",
+      "arena_category": "coding"
+    },
+    {
+      "id": "stem_chat",
+      "label": "Conversational STEM knowledge",
+      "benchmarks": ["MT-Bench STEM", "Arena Math"],
+      "oll_columns": [],
+      "score_kind": "arena_elo",
+      "arena_category": "math"
+    },
+    {
+      "id": "humanities_chat",
+      "label": "Conversational humanities",
+      "benchmarks": ["MT-Bench humanities"],
+      "oll_columns": [],
+      "score_kind": "judge_score",
+      "coverage_note": "MT-Bench category; manual seed only in v0.1.0"
+    },
+    {
+      "id": "factuality",
+      "label": "Factuality / truthfulness",
+      "benchmarks": ["TruthfulQA", "SimpleQA"],
+      "oll_columns": [],
+      "score_kind": "accuracy",
+      "coverage_note": "Manual seed or future OLL extension"
+    },
+    {
+      "id": "long_context_retrieval",
+      "label": "Long-context retrieval",
+      "benchmarks": ["NIAH", "RULER", "BABILong"],
+      "oll_columns": [],
+      "score_kind": "recall",
+      "coverage_note": "Manual seed only in v0.1.0"
+    },
+    {
+      "id": "rag_synthesis",
+      "label": "RAG long-form synthesis",
+      "benchmarks": ["LONG2RAG"],
+      "oll_columns": [],
+      "score_kind": "key_point_recall",
+      "coverage_note": "Manual seed only in v0.1.0"
+    },
+    {
+      "id": "agentic",
+      "label": "Agentic multi-step tasks",
+      "benchmarks": ["AgentBench", "Terminal-Bench"],
+      "oll_columns": [],
+      "score_kind": "task_success",
+      "coverage_note": "Manual seed only in v0.1.0"
+    },
+    {
+      "id": "commonsense",
+      "label": "Commonsense understanding",
+      "benchmarks": ["HellaSwag", "WinoGrande"],
+      "oll_columns": [],
+      "score_kind": "accuracy",
+      "coverage_note": "Manual seed only in v0.1.0"
+    }
+  ]
+}

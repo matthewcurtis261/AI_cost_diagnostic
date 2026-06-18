@@ -1,0 +1,184 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/diagnostic-agent/analyze-inputs.schema.json",
+  "title": "Input-aware what-if analysis report",
+  "type": "object",
+  "required": ["analysis_metadata", "items", "summary", "coverage_notes"],
+  "additionalProperties": false,
+  "properties": {
+    "analysis_metadata": {
+      "type": "object",
+      "required": [
+        "generated_at",
+        "schema_version",
+        "events_source",
+        "pricing_as_of",
+        "currency",
+        "quality_preset",
+        "quality_floor_pct",
+        "quality_sacrifice_per_cost"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "generated_at": { "type": "string", "format": "date-time" },
+        "schema_version": { "type": "string", "const": "0.1.0" },
+        "events_source": { "type": "string" },
+        "pricing_as_of": { "type": "string" },
+        "currency": { "type": "string" },
+        "quality_scores_generated_at": { "type": "string" },
+        "quality_preset": { "type": "string" },
+        "quality_floor_pct": { "type": "number", "minimum": 0, "maximum": 1 },
+        "quality_sacrifice_per_cost": { "type": "number", "minimum": 0 },
+        "classifier_runtime": { "type": "string" },
+        "pricing_sources": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "event_id",
+          "timestamp",
+          "provider",
+          "model",
+          "call_type",
+          "tokens",
+          "current_cost_usd",
+          "current_quality",
+          "classification",
+          "recommendation"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "event_id": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" },
+          "finding_id": { "type": "string" },
+          "provider": { "type": "string" },
+          "model": { "type": "string" },
+          "call_type": { "type": "string" },
+          "tokens": {
+            "type": "object",
+            "required": ["input_tokens", "output_tokens"],
+            "additionalProperties": false,
+            "properties": {
+              "input_tokens": { "type": "integer", "minimum": 0 },
+              "output_tokens": { "type": "integer", "minimum": 0 }
+            }
+          },
+          "current_cost_usd": { "type": "number", "minimum": 0 },
+          "current_quality": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+          "classification": {
+            "type": "object",
+            "required": ["metric_ids", "metric_weights", "scores"],
+            "additionalProperties": false,
+            "properties": {
+              "metric_ids": {
+                "type": "array",
+                "items": { "type": "string" }
+              },
+              "primary_metric": { "type": "string" },
+              "metric_weights": {
+                "type": "object",
+                "additionalProperties": { "type": "number" }
+              },
+              "scores": {
+                "type": "object",
+                "additionalProperties": { "type": "number" }
+              }
+            }
+          },
+          "recommendation": {
+            "anyOf": [
+              { "type": "null" },
+              {
+                "type": "object",
+                "required": [
+                  "alternative_model",
+                  "alternative_cost_usd",
+                  "savings_usd",
+                  "savings_percent",
+                  "alternative_quality",
+                  "quality_delta",
+                  "quality_floor",
+                  "passes_quality_floor",
+                  "passes_sacrifice_tradeoff"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "alternative_model": { "type": "string" },
+                  "alternative_cost_usd": { "type": "number", "minimum": 0 },
+                  "savings_usd": { "type": "number" },
+                  "savings_percent": { "type": "number" },
+                  "alternative_quality": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+                  "quality_delta": { "type": ["number", "null"] },
+                  "quality_floor": { "type": ["number", "null"], "minimum": 0, "maximum": 1 },
+                  "passes_quality_floor": { "type": "boolean" },
+                  "passes_sacrifice_tradeoff": { "type": "boolean" },
+                  "notes": {
+                    "type": "array",
+                    "items": { "type": "string" }
+                  }
+                }
+              }
+            ]
+          },
+          "skipped_reason": { "type": "string" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "events_total",
+        "events_analyzed",
+        "events_with_recommendations",
+        "events_skipped",
+        "total_current_usd",
+        "total_potential_savings_usd",
+        "by_alternative_model",
+        "by_primary_metric"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "events_total": { "type": "integer", "minimum": 0 },
+        "events_analyzed": { "type": "integer", "minimum": 0 },
+        "events_with_recommendations": { "type": "integer", "minimum": 0 },
+        "events_skipped": { "type": "integer", "minimum": 0 },
+        "total_current_usd": { "type": "number", "minimum": 0 },
+        "total_potential_savings_usd": { "type": "number", "minimum": 0 },
+        "by_alternative_model": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["count", "savings_usd"],
+            "additionalProperties": false,
+            "properties": {
+              "count": { "type": "integer", "minimum": 0 },
+              "savings_usd": { "type": "number", "minimum": 0 }
+            }
+          }
+        },
+        "by_primary_metric": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": ["count", "savings_usd"],
+            "additionalProperties": false,
+            "properties": {
+              "count": { "type": "integer", "minimum": 0 },
+              "savings_usd": { "type": "number", "minimum": 0 }
+            }
+          }
+        }
+      }
+    },
+    "coverage_notes": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

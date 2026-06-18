@@ -109,12 +109,12 @@ pnpm run estimate -- \
 
 ## Savings comparison
 
-Compare current models against cheaper alternatives:
+Compare current models against cheaper alternatives (includes open models by default):
 
 ```bash
 pnpm run estimate -- \
   --findings examples/sample-findings.json \
-  --alternatives gpt-4o-mini,gpt-4.1-nano,claude-3-5-haiku-20241022
+  --alternatives gpt-4o-mini,deepseek-chat,llama-3.1-8b-instruct
 ```
 
 If `--alternatives` is omitted, the pricing table's `default_alternatives` are used.
@@ -141,17 +141,41 @@ Excluded by default:
 
 ## Pricing table
 
-Models and rates live in `estimate/pricing/models.json`.
+Models and rates live in two files, **merged by default** when you run `estimate`:
+
+| File | Contents |
+|---|---|
+| `estimate/pricing/models.json` | Proprietary models (OpenAI, Anthropic, Google) |
+| `input-analysis/pricing/models-open.json` | Open/smaller models (DeepSeek, Llama, Qwen, Mistral, Phi) + self-hosted baseline |
 
 | Field | Meaning |
 |---|---|
 | `input_per_million` | USD per 1M input tokens |
 | `output_per_million` | USD per 1M output tokens |
+| `deployment` | `api` or `self_hosted` (open models only) |
 | `as_of` | Date pricing was last reviewed |
 
-Override with `--pricing path/to/models.json`.
+**Self-hosted baseline:** `$0.20/Mtok` input and output (see `self_hosted_compute` in `models-open.json`).
 
-**Important:** Prices are approximate list rates for estimation — verify against your provider billing before budgeting.
+Override proprietary pricing:
+
+```bash
+pnpm run estimate -- --findings examples/sample-findings.json --pricing path/to/models.json
+```
+
+Override open pricing:
+
+```bash
+pnpm run estimate -- --findings examples/sample-findings.json --open-pricing path/to/models-open.json
+```
+
+Proprietary only (no DeepSeek/Llama savings):
+
+```bash
+pnpm run estimate -- --findings examples/sample-findings.json --no-open-pricing
+```
+
+The report's `estimate_metadata.pricing_sources` lists which files were merged.
 
 ---
 
@@ -209,6 +233,9 @@ diagnostic-agent estimate --findings <path> [options]
   --events <path>           Telemetry JSONL (default: ~/.diagnostic_agent/events.jsonl)
   --output <path>           Write spend-estimate.json
   --assumptions <path>      Custom volume/token assumptions
+  --pricing <path>          Override proprietary pricing (models.json)
+  --open-pricing <path>     Override open/self-hosted pricing (models-open.json)
+  --no-open-pricing         Exclude open models from pricing and savings defaults
   --calls-per-month <n>     Default monthly calls (code-only)
   --default-model <id>      Resolve config_ref/dynamic models
   --alternatives <a,b,c>    Models for savings comparison
@@ -218,6 +245,18 @@ diagnostic-agent estimate --findings <path> [options]
 
 ---
 
-## Next: input-aware analysis
+## Per-request what-if analysis
 
-Milestone 6 will break down prompt composition (system vs. user vs. RAG context) using telemetry inputs to find optimization targets beyond model swaps.
+For input-aware savings (classify each request, apply quality gates, recommend cheaper models per event):
+
+```bash
+pnpm run analyze-inputs -- --events ~/.diagnostic_agent/events.jsonl
+```
+
+See [analyze-inputs-setup.md](analyze-inputs-setup.md).
+
+---
+
+## Next: prompt breakdown
+
+Future Milestone 6 work will break down prompt composition (system vs. user vs. RAG context) to find optimization targets beyond model swaps.

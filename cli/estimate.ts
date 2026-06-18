@@ -15,6 +15,8 @@ export interface EstimateCliOptions {
   output?: string;
   assumptions?: string;
   pricing?: string;
+  openPricing?: string;
+  includeOpenPricing?: boolean;
   callsPerMonth?: number;
   defaultModel?: string;
   alternatives?: string[];
@@ -45,6 +47,11 @@ export function parseEstimateArgs(argv: string[]): EstimateCliOptions {
     } else if (key === '--pricing' && val) {
       options.pricing = val;
       i++;
+    } else if (key === '--open-pricing' && val) {
+      options.openPricing = val;
+      i++;
+    } else if (key === '--no-open-pricing') {
+      options.includeOpenPricing = false;
     } else if (key === '--calls-per-month' && val) {
       options.callsPerMonth = Number(val);
       i++;

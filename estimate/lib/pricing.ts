@@ -2,6 +2,11 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+import {
+  DEFAULT_OPEN_PRICING_PATH,
+  loadOpenPricingFile,
+  mergeOpenPricing,
+} from './open-pricing.js';
 import type { CostBreakdown, ModelPricing, PricingTable } from './types.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -9,8 +14,29 @@ export const DEFAULT_PRICING_PATH = path.join(__dirname, '..', 'pricing', 'model
 
 const DYNAMIC_MODELS = new Set(['dynamic', 'config_ref', 'unknown']);
 
-export function loadPricingTable(pricingPath = DEFAULT_PRICING_PATH): PricingTable {
-  return JSON.parse(fs.readFileSync(pricingPath, 'utf-8')) as PricingTable;
+export interface LoadPricingOptions {
+  openPricingPath?: string;
+  includeOpenPricing?: boolean;
+}
+
+export function loadPricingTable(
+  pricingPath = DEFAULT_PRICING_PATH,
+  options: LoadPricingOptions = {},
+): PricingTable {
+  const base = JSON.parse(fs.readFileSync(pricingPath, 'utf-8')) as PricingTable;
+  const includeOpen = options.includeOpenPricing !== false;
+
+  if (!includeOpen) {
+    return { ...base, pricing_sources: [pricingPath] };
+  }
+
+  const openPath = options.openPricingPath ?? DEFAULT_OPEN_PRICING_PATH;
+  const open = loadOpenPricingFile(openPath);
+  if (!open) {
+    return { ...base, pricing_sources: [pricingPath] };
+  }
+
+  return mergeOpenPricing(base, open, { basePath: pricingPath, openPath });
 }
 
 export function isResolvableModel(model: string): boolean {

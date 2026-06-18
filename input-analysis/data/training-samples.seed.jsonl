@@ -1,0 +1,64 @@
+{"text": "Question: What is the capital of France?\nA. Berlin\nB. Madrid\nC. Paris\nD. Rome\nAnswer:", "labels": ["mcq_knowledge"], "source": "seed:mmlu"}
+{"text": "Which of the following best describes photosynthesis?\nA. Breakdown of glucose in mitochondria\nB. Conversion of light energy to chemical energy\nC. Protein synthesis in ribosomes\nD. DNA replication\nAnswer:", "labels": ["mcq_knowledge"], "source": "seed:mmlu"}
+{"text": "Multiple choice: In economics, opportunity cost is defined as:\nA. The monetary price of a good\nB. The value of the next best alternative forgone\nC. Total production cost\nD. Marginal utility\nAnswer:", "labels": ["mcq_knowledge"], "source": "seed:mmlu"}
+{"text": "A quantum dot in a magnetic field exhibits Landau levels. Calculate the degeneracy per level for a 2D electron gas with area A and flux quantum phi_0.", "labels": ["expert_science"], "source": "seed:gpqa"}
+{"text": "In biochemistry, explain how allosteric inhibition of phosphofructokinase affects glycolytic flux under high ATP concentrations.", "labels": ["expert_science"], "source": "seed:gpqa"}
+{"text": "Physics problem: A muon travels at 0.99c. What is its relativistic lifetime compared to the rest frame value?", "labels": ["expert_science"], "source": "seed:gpqa"}
+{"text": "Math problem: Janet has 16 ducks. She sells 4 and buys 12 more. How many ducks does she have now?", "labels": ["math"], "source": "seed:gsm8k"}
+{"text": "Solve for x: 3x + 7 = 22. Show each algebraic step.", "labels": ["math"], "source": "seed:gsm8k"}
+{"text": "Calculate the integral of x^2 from 0 to 3 and explain the result.", "labels": ["math"], "source": "seed:math"}
+{"text": "A store offers 15% off and then an additional 10% off the discounted price. What is the effective discount on a $200 item?", "labels": ["math", "multi_step_reasoning"], "source": "seed:gsm8k"}
+{"text": "Reason step by step: If all bloops are razzies and some razzies are lazzies, can we conclude some bloops are lazzies?", "labels": ["multi_step_reasoning"], "source": "seed:bbh"}
+{"text": "Chain of thought: A farmer has chickens and cows totaling 30 heads and 74 legs. How many of each animal?", "labels": ["multi_step_reasoning", "math"], "source": "seed:bbh"}
+{"text": "Complete this Python function:\ndef has_close_elements(numbers, threshold):\n    \"\"\"Check if any two numbers are closer than threshold.\"\"\"", "labels": ["code_completion"], "source": "seed:humaneval"}
+{"text": "Implement a function that returns the nth Fibonacci number using memoization.", "labels": ["code_completion"], "source": "seed:humaneval"}
+{"text": "Write Python code: Given a list of intervals, merge overlapping intervals.", "labels": ["code_completion"], "source": "seed:mbpp"}
+{"text": "Fix the bug in this repository module and submit a patch that passes the failing unit tests in CI.", "labels": ["repo_engineering"], "source": "seed:swe"}
+{"text": "You are given a GitHub issue and codebase snapshot. Implement the minimal change to resolve the reported regression.", "labels": ["repo_engineering"], "source": "seed:swe"}
+{"text": "SWE-bench style task: Update the API handler so pagination defaults to page=1 and add tests.", "labels": ["repo_engineering", "code_completion"], "source": "seed:swe"}
+{"text": "Call the weather tool with city='Seattle' and units='metric', then summarize the forecast.", "labels": ["tool_call"], "source": "seed:bfcl"}
+{"text": "Function call JSON schema: search_flights(origin, destination, date). Invoke with SFO to JFK on 2026-07-01.", "labels": ["tool_call"], "source": "seed:bfcl"}
+{"text": "Use the calculator tool to evaluate (19*23)+4 and return only the numeric result.", "labels": ["tool_call", "math"], "source": "seed:bfcl"}
+{"text": "Follow these instructions exactly: Write exactly 3 bullet points. Each bullet must start with a verb. Do not use the word 'very'.", "labels": ["instruction_following"], "source": "seed:ifeval"}
+{"text": "Output format requirement: Return valid JSON with keys title, summary, tags (array). No markdown fences.", "labels": ["instruction_following", "extraction"], "source": "seed:ifeval"}
+{"text": "Your response must include the phrase 'quality gate' once and be under 120 words.", "labels": ["instruction_following"], "source": "seed:ifeval"}
+{"text": "Write a short creative story about a lighthouse keeper who discovers a message in a bottle.", "labels": ["writing"], "source": "seed:mtbench"}
+{"text": "Compose a blog post introducing vector databases to non-technical founders.", "labels": ["writing"], "source": "seed:mtbench"}
+{"text": "Write a poem in ABAB rhyme about autumn rain in a city.", "labels": ["writing"], "source": "seed:mtbench"}
+{"text": "You are a medieval blacksmith. Stay in character and explain how you would forge a horseshoe.", "labels": ["roleplay"], "source": "seed:mtbench"}
+{"text": "Roleplay as a patient science teacher answering a curious 10-year-old about black holes.", "labels": ["roleplay", "stem_chat"], "source": "seed:mtbench"}
+{"text": "Persona: skeptical investigative journalist. Interview the mayor about budget transparency.", "labels": ["roleplay"], "source": "seed:mtbench"}
+{"text": "Extract the following fields from the paragraph as JSON: company_name, founded_year, headquarters, ceo.", "labels": ["extraction"], "source": "seed:mtbench"}
+{"text": "Parse the invoice text and return structured output with line_items, subtotal, tax, total.", "labels": ["extraction"], "source": "seed:mtbench"}
+{"text": "From the meeting notes, extract action items with owner and due_date fields only.", "labels": ["extraction", "instruction_following"], "source": "seed:mtbench"}
+{"text": "Explain why increasing interest rates can reduce inflation, and address a common counterargument.", "labels": ["reasoning_chat"], "source": "seed:arena"}
+{"text": "Think carefully: compare trade-offs between microservices and modular monolith for a 15-person team.", "labels": ["reasoning_chat", "multi_step_reasoning"], "source": "seed:arena"}
+{"text": "Debug this Python function and explain what causes the IndexError:\ndef pick_second(items):\n    return items[1]", "labels": ["coding_chat", "code_completion"], "source": "seed:mtbench"}
+{"text": "Code review: identify security issues in this Express route handler and suggest fixes.", "labels": ["coding_chat", "repo_engineering"], "source": "seed:mtbench"}
+{"text": "Explain this SQL query plan and why the nested loop join might be slow.", "labels": ["coding_chat", "reasoning_chat"], "source": "seed:mtbench"}
+{"text": "Science question: Why does ice float on water despite being solid?", "labels": ["stem_chat"], "source": "seed:mtbench"}
+{"text": "Engineering prompt: Describe how a PID controller reduces steady-state error in a drone.", "labels": ["stem_chat", "expert_science"], "source": "seed:mtbench"}
+{"text": "Chemistry chat: Compare SN1 and SN2 mechanisms for tertiary alkyl halides.", "labels": ["stem_chat", "expert_science"], "source": "seed:mtbench"}
+{"text": "Humanities discussion: How did the printing press influence the Protestant Reformation?", "labels": ["humanities_chat"], "source": "seed:mtbench"}
+{"text": "Literature prompt: Analyze the symbolism of the green light in The Great Gatsby.", "labels": ["humanities_chat", "writing"], "source": "seed:mtbench"}
+{"text": "Philosophy question: What is the difference between utilitarianism and deontology with one example each?", "labels": ["humanities_chat", "reasoning_chat"], "source": "seed:mtbench"}
+{"text": "Fact check: Is it true that humans only use 10% of their brain? Provide a truthful answer.", "labels": ["factuality"], "source": "seed:truthfulqa"}
+{"text": "True or false: Lightning never strikes the same place twice. Explain.", "labels": ["factuality"], "source": "seed:truthfulqa"}
+{"text": "Question: Who was the first person to walk on the Moon? Provide an accurate statement.", "labels": ["factuality", "mcq_knowledge"], "source": "seed:truthfulqa"}
+{"text": "Long document retrieval: The secret code is buried in paragraph 83. What is the code?", "labels": ["long_context_retrieval"], "source": "seed:niah"}
+{"text": "Given a 50k-token context window, retrieve the vendor name mentioned in section 4.2.3 of the attached policy.", "labels": ["long_context_retrieval", "extraction"], "source": "seed:niah"}
+{"text": "Needle in a haystack task: Find the UUID hidden in the long context and return it exactly.", "labels": ["long_context_retrieval"], "source": "seed:niah"}
+{"text": "Based on the documents below, synthesize a brief answer covering all key points about migration risks.", "labels": ["rag_synthesis"], "source": "seed:long2rag"}
+{"text": "Summarize the sources and cite which document supports each claim about Q3 revenue guidance.", "labels": ["rag_synthesis", "extraction"], "source": "seed:long2rag"}
+{"text": "RAG task: Use retrieved context about HIPAA to draft a compliance checklist for a startup.", "labels": ["rag_synthesis", "instruction_following"], "source": "seed:long2rag"}
+{"text": "Agentic task: Open the terminal, run tests, inspect failures, and iterate until all tests pass.", "labels": ["agentic"], "source": "seed:agentbench"}
+{"text": "Multi-step autonomous workflow: browse docs, fill a form, and confirm submission status.", "labels": ["agentic", "tool_call"], "source": "seed:agentbench"}
+{"text": "You are an autonomous coding agent. Plan, edit files, and verify the fix in a sandbox repository.", "labels": ["agentic", "repo_engineering"], "source": "seed:agentbench"}
+{"text": "Commonsense: A man is at the gym lifting weights. What is he most likely to do next?\nA. Eat a heavy Thanksgiving dinner immediately\nB. Drink water and rest between sets\nC. Drive a car through a wall\nD. Knit a sweater", "labels": ["commonsense"], "source": "seed:hellaswag"}
+{"text": "Everyday situation: She put the ice cream on the counter on a hot day. What happens next?", "labels": ["commonsense"], "source": "seed:hellaswag"}
+{"text": "Most likely continuation: The toddler dropped the glass on the tile floor. Then...", "labels": ["commonsense"], "source": "seed:hellaswag"}
+{"text": "system: You are a helpful assistant.\nuser: Draft release notes for v2.1 highlighting performance fixes.", "labels": ["writing", "instruction_following"], "source": "seed:telemetry"}
+{"text": "system: You classify support tickets.\nuser: Customer says billing charged twice after plan upgrade.", "labels": ["reasoning_chat", "extraction"], "source": "seed:telemetry"}
+{"text": "user: Refactor this TypeScript function to use async/await instead of promise chains.", "labels": ["coding_chat", "code_completion"], "source": "seed:telemetry"}
+{"text": "tools:\n- search_docs: Search internal documentation\nuser: Find the rate limit for embeddings API and quote the doc section.", "labels": ["tool_call", "extraction"], "source": "seed:telemetry"}
+{"text": "params: temperature=0, max_tokens=256\nuser: Return JSON with fields risk_level and mitigation for this security finding.", "labels": ["instruction_following", "extraction"], "source": "seed:telemetry"}

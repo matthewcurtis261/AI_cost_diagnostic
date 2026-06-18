@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/diagnostic-agent/classifier-output.schema.json",
+  "title": "Input metric classifier output",
+  "type": "object",
+  "required": ["schema_version", "model", "predictions"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1.0" },
+    "model": {
+      "type": "object",
+      "required": ["base", "weights_path", "label_count"],
+      "additionalProperties": false,
+      "properties": {
+        "base": { "type": "string" },
+        "weights_path": { "type": "string" },
+        "label_count": { "type": "integer", "minimum": 1 },
+        "threshold": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "predictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["index", "metric_ids", "scores"],
+        "additionalProperties": false,
+        "properties": {
+          "index": { "type": "integer", "minimum": 0 },
+          "text_preview": { "type": "string" },
+          "metric_ids": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "scores": {
+            "type": "object",
+            "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+          },
+          "primary_metric": { "type": "string" }
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

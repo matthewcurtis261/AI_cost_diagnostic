@@ -1,0 +1,85 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/diagnostic-agent/quality-scores.schema.json",
+  "title": "Quality Score Matrix",
+  "description": "Normalized benchmark scores per model for input-aware diagnostic analysis.",
+  "type": "object",
+  "required": ["schema_version", "generated_at", "sources", "metrics", "models"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": { "type": "string", "const": "0.1.0" },
+    "generated_at": { "type": "string", "format": "date-time" },
+    "sources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "url", "fetched_at"],
+        "properties": {
+          "id": { "type": "string" },
+          "url": { "type": "string" },
+          "fetched_at": { "type": "string", "format": "date-time" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id": { "type": "string" },
+          "label": { "type": "string" },
+          "benchmarks": { "type": "array", "items": { "type": "string" } },
+          "score_kind": { "type": "string" }
+        }
+      }
+    },
+    "normalization": {
+      "type": "object",
+      "properties": {
+        "accuracy_scale": { "type": "string", "const": "0-1" },
+        "arena_elo": {
+          "type": "object",
+          "properties": {
+            "min": { "type": "number" },
+            "max": { "type": "number" },
+            "per_category": { "type": "boolean" }
+          }
+        }
+      }
+    },
+    "models": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["scores"],
+        "properties": {
+          "display_name": { "type": "string" },
+          "oll_id": { "type": "string" },
+          "type": { "type": "string", "enum": ["proprietary", "open", "unknown"] },
+          "scores": {
+            "type": "object",
+            "additionalProperties": {
+              "type": ["number", "null"],
+              "minimum": 0,
+              "maximum": 1
+            }
+          },
+          "score_sources": {
+            "type": "object",
+            "additionalProperties": { "type": "string" }
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "properties": {
+        "total_models": { "type": "integer" },
+        "metrics_with_data": { "type": "object" },
+        "notes": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

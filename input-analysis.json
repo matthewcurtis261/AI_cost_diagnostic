@@ -1,0 +1,164 @@
+{
+  "analysis_metadata": {
+    "generated_at": "2026-06-18T21:33:43.953Z",
+    "schema_version": "0.1.0",
+    "events_source": "examples/sample-events-input-analysis.jsonl",
+    "pricing_as_of": "2026-06-01",
+    "currency": "USD",
+    "quality_scores_generated_at": "2026-06-18T00:00:00+00:00",
+    "quality_preset": "conservative",
+    "quality_floor_pct": 0.95,
+    "quality_sacrifice_per_cost": 0.2,
+    "classifier_runtime": "keyword_lexicon",
+    "pricing_sources": [
+      "C:\\Users\\MATTH\\diagnostic_agent\\estimate\\pricing\\models.json",
+      "C:\\Users\\MATTH\\diagnostic_agent\\input-analysis\\pricing\\models-open.json"
+    ]
+  },
+  "items": [
+    {
+      "event_id": "evt_sample001",
+      "timestamp": "2026-06-18T14:32:01.123Z",
+      "finding_id": "f001",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "call_type": "chat_completion",
+      "tokens": {
+        "input_tokens": 847,
+        "output_tokens": 312
+      },
+      "current_cost_usd": 0.000314,
+      "current_quality": 0.8,
+      "classification": {
+        "metric_ids": [
+          "roleplay"
+        ],
+        "primary_metric": "roleplay",
+        "metric_weights": {
+          "roleplay": 0.85
+        },
+        "scores": {
+          "roleplay": 0.85
+        }
+      },
+      "recommendation": {
+        "alternative_model": "deepseek-chat",
+        "alternative_cost_usd": 0.000206,
+        "savings_usd": 0.000108,
+        "savings_percent": 34.394904,
+        "alternative_quality": 0.86,
+        "quality_delta": -0.06,
+        "quality_floor": 0.817,
+        "passes_quality_floor": true,
+        "passes_sacrifice_tradeoff": true
+      }
+    },
+    {
+      "event_id": "evt_sample002",
+      "timestamp": "2026-06-18T15:10:00.000Z",
+      "finding_id": "f002",
+      "provider": "openai",
+      "model": "gpt-4o",
+      "call_type": "chat_completion",
+      "tokens": {
+        "input_tokens": 1200,
+        "output_tokens": 450
+      },
+      "current_cost_usd": 0.0075,
+      "current_quality": 0.92,
+      "classification": {
+        "metric_ids": [
+          "code_completion"
+        ],
+        "primary_metric": "code_completion",
+        "metric_weights": {
+          "code_completion": 0.92
+        },
+        "scores": {
+          "code_completion": 0.92
+        }
+      },
+      "recommendation": {
+        "alternative_model": "deepseek-chat",
+        "alternative_cost_usd": 0.000294,
+        "savings_usd": 0.007206,
+        "savings_percent": 96.08,
+        "alternative_quality": 0.9,
+        "quality_delta": 0.02,
+        "quality_floor": 0.874,
+        "passes_quality_floor": true,
+        "passes_sacrifice_tradeoff": true
+      }
+    },
+    {
+      "event_id": "evt_sample003",
+      "timestamp": "2026-06-18T15:12:00.000Z",
+      "finding_id": "f003",
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20241022",
+      "call_type": "chat_completion",
+      "tokens": {
+        "input_tokens": 220,
+        "output_tokens": 180
+      },
+      "current_cost_usd": 0.00336,
+      "current_quality": 0.748,
+      "classification": {
+        "metric_ids": [
+          "math"
+        ],
+        "primary_metric": "math",
+        "metric_weights": {
+          "math": 0.89
+        },
+        "scores": {
+          "math": 0.89
+        }
+      },
+      "recommendation": {
+        "alternative_model": "deepseek-reasoner",
+        "alternative_cost_usd": 0.000515,
+        "savings_usd": 0.002845,
+        "savings_percent": 84.672619,
+        "alternative_quality": 0.902,
+        "quality_delta": -0.154,
+        "quality_floor": 0.8569,
+        "passes_quality_floor": true,
+        "passes_sacrifice_tradeoff": true
+      }
+    }
+  ],
+  "summary": {
+    "events_total": 3,
+    "events_analyzed": 3,
+    "events_with_recommendations": 3,
+    "events_skipped": 0,
+    "total_current_usd": 0.011174,
+    "total_potential_savings_usd": 0.010159,
+    "by_alternative_model": {
+      "deepseek-chat": {
+        "count": 2,
+        "savings_usd": 0.007314
+      },
+      "deepseek-reasoner": {
+        "count": 1,
+        "savings_usd": 0.002845
+      }
+    },
+    "by_primary_metric": {
+      "roleplay": {
+        "count": 1,
+        "savings_usd": 0.000108
+      },
+      "code_completion": {
+        "count": 1,
+        "savings_usd": 0.007206
+      },
+      "math": {
+        "count": 1,
+        "savings_usd": 0.002845
+      }
+    }
+  },
+  "coverage_notes": []
+}

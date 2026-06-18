@@ -1,0 +1,29 @@
+{
+  "schema_version": "0.1.0",
+  "model": "distilbert-base-uncased",
+  "task": "multi_label_metric_classification",
+  "max_length": 256,
+  "threshold": 0.35,
+  "labels": [
+    "mcq_knowledge",
+    "expert_science",
+    "math",
+    "multi_step_reasoning",
+    "code_completion",
+    "repo_engineering",
+    "tool_call",
+    "instruction_following",
+    "writing",
+    "roleplay",
+    "extraction",
+    "reasoning_chat",
+    "coding_chat",
+    "stem_chat",
+    "humanities_chat",
+    "factuality",
+    "long_context_retrieval",
+    "rag_synthesis",
+    "agentic",
+    "commonsense"
+  ]
+}

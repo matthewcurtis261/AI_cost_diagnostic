@@ -28,10 +28,16 @@ export function buildEstimate(
   findingsDoc: FindingsDocument,
   options: EstimateOptions,
   assumptions?: AssumptionsFile,
-  pricing: PricingTable = loadPricingTable(options.pricingPath),
+  pricing?: PricingTable,
 ): EstimateReport {
   const billable = selectBillableFindings(findingsDoc.findings);
   const mode = options.eventsPath ? 'telemetry' : 'code_only';
+  const pricingTable =
+    pricing ??
+    loadPricingTable(options.pricingPath, {
+      openPricingPath: options.openPricingPath,
+      includeOpenPricing: options.includeOpenPricing,
+    });
   const telemetryByFinding = options.eventsPath
     ? mergeAggregatesByFinding(
         aggregateTelemetry(loadTelemetryEvents(options.eventsPath), {
@@ -54,7 +60,7 @@ export function buildEstimate(
       defaultModel: options.defaultModel ?? perFindingAssumptions?.model,
       overrideModel: perFindingAssumptions?.model,
       modelsDetected: findingsDoc.summary.models_detected,
-      pricing,
+      pricing: pricingTable,
     });
 
     const telemetry = telemetryByFinding?.get(finding.id);
@@ -83,7 +89,7 @@ export function buildEstimate(
       ? telemetry.model
       : resolved.model;
 
-    const modelPricing = getModelPricing(pricing, modelForPricing);
+    const modelPricing = getModelPricing(pricingTable, modelForPricing);
     const cost = calculateCost(usage.input_tokens, usage.output_tokens, modelPricing);
 
     if (!modelPricing) {
@@ -104,11 +110,21 @@ export function buildEstimate(
   }
 
   const totals = sumLineItems(lineItems);
-  const savings = buildSavingsOpportunities(lineItems, pricing, options.alternatives);
+  const savings = buildSavingsOpportunities(lineItems, pricingTable, options.alternatives);
 
   if (mode === 'code_only') {
     coverageNotes.push(
       'Code-only mode: token volumes are assumed heuristics unless --assumptions is provided',
+    );
+  }
+
+  if (
+    options.includeOpenPricing !== false &&
+    pricingTable.pricing_sources &&
+    pricingTable.pricing_sources.length > 1
+  ) {
+    coverageNotes.push(
+      'Open-model pricing merged (DeepSeek, Llama, Qwen, Mistral, Phi; self-hosted $0.20/Mtok baseline)',
     );
   }
 
@@ -119,9 +135,10 @@ export function buildEstimate(
       mode,
       findings_source: options.findingsPath,
       events_source: options.eventsPath,
-      pricing_as_of: pricing.as_of,
-      currency: pricing.currency,
+      pricing_as_of: pricingTable.as_of,
+      currency: pricingTable.currency,
       period: options.period ?? (mode === 'telemetry' ? 'event_window' : 'month'),
+      pricing_sources: pricingTable.pricing_sources,
     },
     line_items: lineItems,
     totals,

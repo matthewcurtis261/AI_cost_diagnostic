@@ -19,6 +19,59 @@ function loadJson<T>(relativePath: string): T {
   ) as T;
 }
 
+describe('open pricing merge (6b)', () => {
+  it('merges open models into default pricing table', () => {
+    const pricing = loadPricingTable();
+    assert.ok(pricing.models['deepseek-chat']);
+    assert.ok(pricing.models['llama-3.1-8b-instruct']);
+    assert.equal(pricing.self_hosted_compute?.input_per_million, 0.2);
+    assert.ok(pricing.pricing_sources && pricing.pricing_sources.length >= 2);
+  });
+
+  it('includes open models in default chat alternatives', () => {
+    const pricing = loadPricingTable();
+    const alts = pricing.default_alternatives?.chat_completion ?? [];
+    assert.ok(alts.includes('deepseek-chat'));
+    assert.ok(alts.includes('llama-3.1-8b-instruct-self-hosted'));
+  });
+
+  it('excludes open models when includeOpenPricing is false', () => {
+    const pricing = loadPricingTable(undefined, { includeOpenPricing: false });
+    assert.equal(pricing.models['deepseek-chat'], undefined);
+    assert.equal(pricing.pricing_sources?.length, 1);
+  });
+
+  it('surfaces open-model savings vs frontier chat models', () => {
+    const findings = loadJson<FindingsDocument>('examples/sample-findings.json');
+    const report = buildEstimate(findings, {
+      findingsPath: 'examples/sample-findings.json',
+      callsPerMonth: 10000,
+    });
+
+    const sonnetItem = report.line_items.find((i) =>
+      i.model.includes('claude-3-5-sonnet'),
+    );
+    assert.ok(sonnetItem);
+    const deepseekSave = report.savings_opportunities.find(
+      (s) =>
+        s.finding_id === sonnetItem.finding_id &&
+        s.alternative_model === 'deepseek-chat' &&
+        s.savings_usd > 0,
+    );
+    assert.ok(deepseekSave);
+    assert.ok(report.estimate_metadata.pricing_sources);
+  });
+
+  it('prices self-hosted llama at $0.20/Mtok', () => {
+    const pricing = loadPricingTable();
+    const model = getModelPricing(pricing, 'llama-3.1-8b-instruct-self-hosted');
+    assert.ok(model);
+    assert.equal(model.deployment, 'self_hosted');
+    const cost = calculateCost(1_000_000, 1_000_000, model);
+    assert.equal(cost.total_usd, 0.4);
+  });
+});
+
 describe('pricing', () => {
   it('calculates gpt-4o-mini chat cost', () => {
     const pricing = loadPricingTable();

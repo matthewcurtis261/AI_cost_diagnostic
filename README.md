@@ -18,6 +18,7 @@ Milestones 1–5 are implemented (discovery, reliability, telemetry, estimation)
 pnpm install
 pnpm run discover -- --repo /path/to/your/codebase
 pnpm run estimate -- --findings ai-usage-findings.json
+pnpm run analyze-inputs -- --events examples/sample-events-input-analysis.jsonl
 ```
 
 **CI / no Docker (static Pass A scan):**
@@ -42,6 +43,7 @@ Full agent scans require a running [Nanoclaw](https://github.com/nanocoai/nanocl
 | `cli/` | Thin CLI: `discover`, `setup`, `scan`, `check`, `estimate` |
 | `telemetry/` | Opt-in SDK wrappers + JSONL writer (Observe phase) |
 | `estimate/` | Pricing tables + cost engine (Estimate phase) |
+| `input-analysis/` | Quality score matrix, classifier, open-model pricing (Milestone 6) |
 | `examples/sample-findings.json` | Reference scan output |
 | `examples/sample-events.jsonl` | Reference telemetry event |
 | `examples/assumptions.json` | Reference volume assumptions |
@@ -68,7 +70,7 @@ Nanoclaw lives alongside this project (see `../nanoclaw-main`). This repo ships 
 | 3 — Productization | **Done** (`discover`, static CI scan, `check` exit codes, docs) |
 | 4 — Telemetry | **Done** (wrappers, writer, schema, docs) |
 | 5 — Cost estimation | **Done** (pricing, code-only + telemetry modes, savings) |
-| 6 — Input-aware analysis | Planned |
+| 6 — Input-aware analysis | **Done** (quality matrix, classifier, `analyze-inputs` CLI) |
 
 ## Docs
 
@@ -78,6 +80,7 @@ Nanoclaw lives alongside this project (see `../nanoclaw-main`). This repo ships 
 - [Reliability](docs/reliability.md) — dedup, confidence rubric, validate/normalize findings
 - [Telemetry setup](docs/telemetry-setup.md) — opt-in SDK wrappers, event schema, privacy
 - [Cost estimation](docs/estimate-setup.md) — pricing, assumptions, savings comparison
+- [Input-aware analysis](docs/analyze-inputs-setup.md) — per-request what-if savings CLI
 - [Discovery plan](docs/PLAN.md) — architecture and roadmap
 
 ## Development
@@ -88,6 +91,11 @@ pnpm run validate-findings -- examples/sample-findings.json
 pnpm run normalize-findings -- examples/sample-findings.json
 pnpm run validate-events -- examples/sample-events.jsonl
 pnpm run validate-estimate -- examples/sample-estimate.json
+pnpm run validate-quality-scores
+pnpm run analyze-inputs -- --events examples/sample-events-input-analysis.jsonl --json
+pnpm run validate-analyze-inputs -- input-analysis.json
+pnpm run bootstrap-classifier   # rebuild bootstrap classifier weights
+pnpm run train-classifier       # fine-tune DistilBERT head (optional, higher accuracy)
 pnpm run build
 ```
 

@@ -27,7 +27,11 @@
         "events_source": { "type": "string" },
         "pricing_as_of": { "type": "string" },
         "currency": { "type": "string", "minLength": 1 },
-        "period": { "type": "string", "enum": ["month", "day", "event_window"] }
+        "period": { "type": "string", "enum": ["month", "day", "event_window"] },
+        "pricing_sources": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
       }
     },
     "line_items": {
