@@ -1,0 +1,205 @@
+{
+  "estimate_metadata": {
+    "generated_at": "2026-06-18T19:28:48.933Z",
+    "schema_version": "0.1.0",
+    "mode": "code_only",
+    "findings_source": "examples/sample-findings.json",
+    "pricing_as_of": "2026-06-01",
+    "currency": "USD",
+    "period": "month"
+  },
+  "line_items": [
+    {
+      "finding_id": "f001",
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20241022",
+      "call_type": "chat_completion",
+      "location": {
+        "file": "src/agents/support.ts",
+        "lines": [
+          44,
+          67
+        ]
+      },
+      "usage": {
+        "calls": 1000,
+        "input_tokens": 800000,
+        "output_tokens": 300000,
+        "source": "assumed"
+      },
+      "cost": {
+        "input_usd": 2.4,
+        "output_usd": 4.5,
+        "total_usd": 6.9
+      },
+      "pricing_model_resolved": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "finding_id": "f002",
+      "provider": "openai",
+      "model": "text-embedding-3-small",
+      "call_type": "embedding",
+      "location": {
+        "file": "src/search/embeddings.py",
+        "lines": [
+          12,
+          18
+        ]
+      },
+      "usage": {
+        "calls": 1000,
+        "input_tokens": 500000,
+        "output_tokens": 0,
+        "source": "assumed"
+      },
+      "cost": {
+        "input_usd": 0.01,
+        "output_usd": 0,
+        "total_usd": 0.01
+      },
+      "pricing_model_resolved": "text-embedding-3-small"
+    },
+    {
+      "finding_id": "f003",
+      "provider": "openai",
+      "model": "claude-3-5-sonnet-20241022",
+      "call_type": "chat_completion",
+      "location": {
+        "file": "src/llm/router.ts",
+        "lines": [
+          88,
+          95
+        ]
+      },
+      "usage": {
+        "calls": 1000,
+        "input_tokens": 800000,
+        "output_tokens": 300000,
+        "source": "assumed"
+      },
+      "cost": {
+        "input_usd": 2.4,
+        "output_usd": 4.5,
+        "total_usd": 6.9
+      },
+      "pricing_model_resolved": "claude-3-5-sonnet-20241022",
+      "notes": [
+        "Resolved dynamic → claude-3-5-sonnet-20241022 from scan summary"
+      ]
+    }
+  ],
+  "totals": {
+    "calls": 3000,
+    "input_tokens": 2100000,
+    "output_tokens": 600000,
+    "source": "assumed",
+    "total_usd": 13.81
+  },
+  "savings_opportunities": [
+    {
+      "finding_id": "f001",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gpt-4.1-nano",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.2,
+      "savings_usd": 6.7,
+      "savings_percent": 97.101449,
+      "compatible": true
+    },
+    {
+      "finding_id": "f001",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gemini-2.0-flash",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.2,
+      "savings_usd": 6.7,
+      "savings_percent": 97.101449,
+      "compatible": true
+    },
+    {
+      "finding_id": "f003",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gpt-4.1-nano",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.2,
+      "savings_usd": 6.7,
+      "savings_percent": 97.101449,
+      "compatible": true
+    },
+    {
+      "finding_id": "f003",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gemini-2.0-flash",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.2,
+      "savings_usd": 6.7,
+      "savings_percent": 97.101449,
+      "compatible": true
+    },
+    {
+      "finding_id": "f001",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gpt-4o-mini",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.3,
+      "savings_usd": 6.6,
+      "savings_percent": 95.652174,
+      "compatible": true
+    },
+    {
+      "finding_id": "f003",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gpt-4o-mini",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.3,
+      "savings_usd": 6.6,
+      "savings_percent": 95.652174,
+      "compatible": true
+    },
+    {
+      "finding_id": "f001",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gpt-4.1-mini",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.8,
+      "savings_usd": 6.1,
+      "savings_percent": 88.405797,
+      "compatible": true
+    },
+    {
+      "finding_id": "f003",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "gpt-4.1-mini",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 0.8,
+      "savings_usd": 6.1,
+      "savings_percent": 88.405797,
+      "compatible": true
+    },
+    {
+      "finding_id": "f001",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "claude-3-5-haiku-20241022",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 1.84,
+      "savings_usd": 5.06,
+      "savings_percent": 73.333333,
+      "compatible": true
+    },
+    {
+      "finding_id": "f003",
+      "current_model": "claude-3-5-sonnet-20241022",
+      "alternative_model": "claude-3-5-haiku-20241022",
+      "current_total_usd": 6.9,
+      "alternative_total_usd": 1.84,
+      "savings_usd": 5.06,
+      "savings_percent": 73.333333,
+      "compatible": true
+    }
+  ],
+  "coverage_notes": [
+    "Scanned whole repo; node_modules and dist excluded",
+    "1 call site uses runtime model selection — volume requires telemetry or config access",
+    "Code-only mode: token volumes are assumed heuristics unless --assumptions is provided"
+  ]
+}

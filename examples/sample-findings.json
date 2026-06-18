@@ -1,0 +1,53 @@
+{
+  "scan_metadata": {
+    "repo_path": "/workspace/extra/acme-api",
+    "repo_mount_name": "acme-api",
+    "scope": [],
+    "scanned_at": "2026-06-18T14:32:01.123Z",
+    "schema_version": "0.1.0",
+    "files_scanned": 842,
+    "agent_version": "ai-spend-discovery/0.1.0",
+    "excluded_paths": ["node_modules", ".git", "dist"]
+  },
+  "findings": [
+    {
+      "id": "f001",
+      "provider": "anthropic",
+      "model": "claude-3-5-sonnet-20241022",
+      "call_type": "chat_completion",
+      "location": { "file": "src/agents/support.ts", "lines": [44, 67] },
+      "confidence": "high",
+      "evidence": "await anthropic.messages.create({ model: 'claude-3-5-sonnet-20241022', max_tokens: 1024, messages })"
+    },
+    {
+      "id": "f002",
+      "provider": "openai",
+      "model": "text-embedding-3-small",
+      "call_type": "embedding",
+      "location": { "file": "src/search/embeddings.py", "lines": [12, 18] },
+      "confidence": "high",
+      "evidence": "client.embeddings.create(model='text-embedding-3-small', input=texts)"
+    },
+    {
+      "id": "f003",
+      "provider": "openai",
+      "model": "dynamic",
+      "call_type": "chat_completion",
+      "location": { "file": "src/llm/router.ts", "lines": [88, 95] },
+      "confidence": "medium",
+      "evidence": "openai.chat.completions.create({ model: config.modelName, messages })",
+      "wrapper": "LLMRouter",
+      "notes": "Model selected at runtime from config"
+    }
+  ],
+  "summary": {
+    "providers": ["anthropic", "openai"],
+    "models_detected": ["claude-3-5-sonnet-20241022", "text-embedding-3-small"],
+    "likely_dynamic_models": 1,
+    "call_types": ["chat_completion", "embedding"],
+    "coverage_notes": [
+      "Scanned whole repo; node_modules and dist excluded",
+      "1 call site uses runtime model selection — volume requires telemetry or config access"
+    ]
+  }
+}

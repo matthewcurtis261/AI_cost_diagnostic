@@ -1,0 +1,87 @@
+from __future__ import annotations
+
+import os
+import time
+from typing import Any
+
+from diagnostic_agent_telemetry.writer import EventWriter, get_default_writer
+
+
+def _usage_from_openai(usage: Any) -> dict[str, Any]:
+    if usage is None:
+        return {
+            "input_tokens": 0,
+            "output_tokens": 0,
+            "source": "unknown",
+        }
+    prompt = getattr(usage, "prompt_tokens", None) or usage.get("prompt_tokens", 0)
+    completion = getattr(usage, "completion_tokens", None) or usage.get("completion_tokens", 0)
+    total = getattr(usage, "total_tokens", None) or usage.get("total_tokens")
+    payload = {
+        "input_tokens": int(prompt or 0),
+        "output_tokens": int(completion or 0),
+        "source": "provider",
+    }
+    if total is not None:
+        payload["total_tokens"] = int(total)
+    return payload
+
+
+def _extract_model(request: dict[str, Any], response: Any) -> str:
+    model = request.get("model")
+    if isinstance(model, str) and model:
+        return model
+    response_model = getattr(response, "model", None)
+    if isinstance(response_model, str) and response_model:
+        return response_model
+    return "unknown"
+
+
+def instrument_openai(
+    client: Any,
+    *,
+    finding_id: str | None = None,
+    label: str | None = None,
+    writer: EventWriter | None = None,
+    environment: str | None = None,
+) -> Any:
+    """Wrap OpenAI chat.completions.create to emit telemetry events."""
+    event_writer = writer or get_default_writer()
+    original_create = client.chat.completions.create
+
+    def wrapped_create(*args: Any, **kwargs: Any) -> Any:
+        started = time.time()
+        response = original_create(*args, **kwargs)
+        request = kwargs if kwargs else (args[0] if args else {})
+        if not isinstance(request, dict):
+            request = {}
+
+        tokens = _usage_from_openai(getattr(response, "usage", None))
+        event_writer.record(
+            provider="openai",
+            model=_extract_model(request, response),
+            call_type="chat_completion",
+            input_payload={
+                "messages": request.get("messages", []),
+                "tools": request.get("tools"),
+                "parameters": {
+                    "max_tokens": request.get("max_tokens"),
+                    "temperature": request.get("temperature"),
+                    "response_format": request.get("response_format"),
+                    "top_p": request.get("top_p"),
+                },
+            },
+            tokens=tokens,
+            latency_ms=int((time.time() - started) * 1000),
+            metadata={
+                "sdk": "openai-python",
+                "environment": environment or os.environ.get("ENVIRONMENT") or os.environ.get("NODE_ENV"),
+                "label": label,
+            },
+            finding_id=finding_id,
+            label=label,
+        )
+        return response
+
+    client.chat.completions.create = wrapped_create
+    return client

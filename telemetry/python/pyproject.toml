@@ -1,0 +1,26 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "diagnostic-agent-telemetry"
+version = "0.1.0"
+description = "Opt-in LLM telemetry for diagnostic_agent — captures inputs and token counts, not output content"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "diagnostic_agent contributors" }]
+keywords = ["llm", "telemetry", "openai", "anthropic", "observability"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+]
+
+[project.urls]
+Homepage = "https://github.com/diagnostic-agent/diagnostic_agent"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["diagnostic_agent_telemetry*"]

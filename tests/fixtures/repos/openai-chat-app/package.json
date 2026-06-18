@@ -1,0 +1,7 @@
+{
+  "name": "openai-chat-app-fixture",
+  "private": true,
+  "dependencies": {
+    "openai": "^4.0.0"
+  }
+}

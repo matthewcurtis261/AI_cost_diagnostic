@@ -1,0 +1,203 @@
+{
+  "schema_version": "0.1.0",
+  "exclude_dirs": [
+    "node_modules",
+    ".git",
+    "vendor",
+    "dist",
+    "build",
+    ".next",
+    ".turbo",
+    "coverage",
+    "__pycache__",
+    ".venv",
+    "venv",
+    ".mypy_cache",
+    "target",
+    ".gradle"
+  ],
+  "exclude_globs": [
+    "**/*.min.js",
+    "**/*.map",
+    "**/package-lock.json",
+    "**/pnpm-lock.yaml",
+    "**/yarn.lock"
+  ],
+  "model_patterns": [
+    "gpt-4",
+    "gpt-3\\.5",
+    "gpt-4o",
+    "o1-",
+    "o3-",
+    "claude-3",
+    "claude-sonnet",
+    "claude-opus",
+    "claude-haiku",
+    "gemini-",
+    "llama-",
+    "mistral-",
+    "mixtral-",
+    "text-embedding-",
+    "dall-e",
+    "whisper-",
+    "command-r",
+    "deepseek-"
+  ],
+  "providers": {
+    "openai": {
+      "sdk_imports": [
+        "openai",
+        "@openai/",
+        "from openai",
+        "import openai",
+        "require('openai'",
+        "require(\"openai\""
+      ],
+      "http_endpoints": ["api.openai.com", "openai.azure.com"],
+      "env_vars": ["OPENAI_API_KEY", "AZURE_OPENAI_", "OPENAI_ORG_ID"]
+    },
+    "anthropic": {
+      "sdk_imports": [
+        "anthropic",
+        "@anthropic-ai/",
+        "from anthropic",
+        "import anthropic"
+      ],
+      "http_endpoints": ["api.anthropic.com"],
+      "env_vars": ["ANTHROPIC_API_KEY"]
+    },
+    "google": {
+      "sdk_imports": [
+        "google.generativeai",
+        "google.genai",
+        "vertexai",
+        "@google-cloud/aiplatform",
+        "generative-ai"
+      ],
+      "http_endpoints": [
+        "generativelanguage.googleapis.com",
+        "aiplatform.googleapis.com"
+      ],
+      "env_vars": ["GOOGLE_API_KEY", "GEMINI_API_KEY", "VERTEX_"]
+    },
+    "aws-bedrock": {
+      "sdk_imports": [
+        "bedrock-runtime",
+        "bedrock_agent",
+        "InvokeModel",
+        "InvokeModelWithResponseStream",
+        "bedrock-agent-runtime"
+      ],
+      "http_endpoints": ["bedrock-runtime", "bedrock-agent-runtime"],
+      "env_vars": ["AWS_BEDROCK", "BEDROCK_"]
+    },
+    "azure-openai": {
+      "sdk_imports": ["azure.ai.openai", "AzureOpenAI", "openai.AzureOpenAI"],
+      "http_endpoints": ["openai.azure.com"],
+      "env_vars": ["AZURE_OPENAI_"]
+    },
+    "cohere": {
+      "sdk_imports": ["cohere", "from cohere", "import cohere"],
+      "http_endpoints": ["api.cohere.ai", "api.cohere.com"],
+      "env_vars": ["COHERE_API_KEY"]
+    },
+    "mistral": {
+      "sdk_imports": ["mistralai", "from mistralai", "@mistralai/"],
+      "http_endpoints": ["api.mistral.ai"],
+      "env_vars": ["MISTRAL_API_KEY"]
+    },
+    "together": {
+      "sdk_imports": ["together", "from together", "Together"],
+      "http_endpoints": ["api.together.xyz"],
+      "env_vars": ["TOGETHER_API_KEY"]
+    },
+    "groq": {
+      "sdk_imports": ["groq", "from groq", "Groq"],
+      "http_endpoints": ["api.groq.com"],
+      "env_vars": ["GROQ_API_KEY"]
+    },
+    "replicate": {
+      "sdk_imports": ["replicate", "from replicate"],
+      "http_endpoints": ["api.replicate.com"],
+      "env_vars": ["REPLICATE_API_TOKEN"]
+    },
+    "huggingface": {
+      "sdk_imports": [
+        "huggingface_hub",
+        "from huggingface_hub",
+        "InferenceClient",
+        "@huggingface/inference"
+      ],
+      "http_endpoints": ["api-inference.huggingface.co", "huggingface.co/api"],
+      "env_vars": ["HF_TOKEN", "HUGGINGFACE_"]
+    },
+    "ollama": {
+      "sdk_imports": ["ollama", "from ollama", "Ollama"],
+      "http_endpoints": ["localhost:11434", "ollama.com/api"],
+      "env_vars": ["OLLAMA_HOST", "OLLAMA_"]
+    },
+    "litellm": {
+      "sdk_imports": ["litellm", "from litellm", "import litellm"],
+      "http_endpoints": ["litellm", "openrouter.ai"],
+      "env_vars": ["LITELLM_"]
+    },
+    "langchain": {
+      "sdk_imports": [
+        "langchain",
+        "@langchain/",
+        "from langchain",
+        "langgraph"
+      ],
+      "http_endpoints": [],
+      "env_vars": ["LANGCHAIN_"]
+    },
+    "llamaindex": {
+      "sdk_imports": ["llama_index", "llama-index", "from llama_index"],
+      "http_endpoints": [],
+      "env_vars": []
+    },
+    "openrouter": {
+      "sdk_imports": ["openrouter", "OpenRouter"],
+      "http_endpoints": ["openrouter.ai/api"],
+      "env_vars": ["OPENROUTER_API_KEY"]
+    },
+    "fireworks": {
+      "sdk_imports": ["fireworks", "fireworks-ai"],
+      "http_endpoints": ["api.fireworks.ai"],
+      "env_vars": ["FIREWORKS_API_KEY"]
+    }
+  },
+  "dependency_packages": [
+    "openai",
+    "@anthropic-ai/sdk",
+    "anthropic",
+    "@google/generative-ai",
+    "@google-cloud/aiplatform",
+    "cohere-ai",
+    "cohere",
+    "@mistralai/mistralai",
+    "mistralai",
+    "together-ai",
+    "groq-sdk",
+    "replicate",
+    "@huggingface/inference",
+    "huggingface-hub",
+    "ollama",
+    "litellm",
+    "langchain",
+    "@langchain/openai",
+    "@langchain/anthropic",
+    "llama-index",
+    "@aws-sdk/client-bedrock-runtime"
+  ],
+  "semantic_signals": [
+    "messages",
+    "max_tokens",
+    "temperature",
+    "chat.completions",
+    "embeddings.create",
+    "completion",
+    "system_prompt",
+    "tool_choice"
+  ]
+}

@@ -1,0 +1,137 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/diagnostic-agent/findings.schema.json",
+  "title": "AI Usage Findings",
+  "description": "Structured output from an ai-spend-discovery scan",
+  "type": "object",
+  "required": ["scan_metadata", "findings", "summary"],
+  "additionalProperties": false,
+  "properties": {
+    "scan_metadata": {
+      "type": "object",
+      "required": ["repo_path", "scanned_at", "schema_version"],
+      "additionalProperties": false,
+      "properties": {
+        "repo_path": { "type": "string", "minLength": 1 },
+        "repo_mount_name": { "type": "string" },
+        "scope": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Subdirectories scanned; empty means whole repo"
+        },
+        "scanned_at": { "type": "string", "format": "date-time" },
+        "schema_version": { "type": "string", "const": "0.1.0" },
+        "files_scanned": { "type": "integer", "minimum": 0 },
+        "agent_version": { "type": "string" },
+        "excluded_paths": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/finding" }
+    },
+    "summary": {
+      "type": "object",
+      "required": ["providers", "models_detected", "likely_dynamic_models"],
+      "additionalProperties": false,
+      "properties": {
+        "providers": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "models_detected": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "likely_dynamic_models": { "type": "integer", "minimum": 0 },
+        "call_types": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "coverage_notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "finding": {
+      "type": "object",
+      "required": [
+        "id",
+        "provider",
+        "call_type",
+        "model",
+        "location",
+        "confidence",
+        "evidence"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^f[0-9]{3,}$"
+        },
+        "provider": {
+          "type": "string",
+          "minLength": 1
+        },
+        "call_type": {
+          "type": "string",
+          "enum": [
+            "chat_completion",
+            "embedding",
+            "image",
+            "speech",
+            "agent_framework",
+            "unknown"
+          ]
+        },
+        "model": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Literal model id, or dynamic/config_ref/unknown"
+        },
+        "location": {
+          "type": "object",
+          "required": ["file", "lines"],
+          "additionalProperties": false,
+          "properties": {
+            "file": { "type": "string", "minLength": 1 },
+            "lines": {
+              "type": "array",
+              "items": { "type": "integer", "minimum": 1 },
+              "minItems": 1,
+              "maxItems": 2
+            }
+          }
+        },
+        "confidence": {
+          "type": "string",
+          "enum": ["high", "medium", "low"]
+        },
+        "evidence": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Verbatim code snippet or matched pattern"
+        },
+        "wrapper": {
+          "type": "string",
+          "description": "Internal abstraction layer name, if any"
+        },
+        "env_refs": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  }
+}

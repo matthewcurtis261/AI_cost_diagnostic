@@ -1,0 +1,84 @@
+{
+  "scan_metadata": {
+    "repo_path": "/workspace/extra/rival-search",
+    "repo_mount_name": "rival-search",
+    "scope": [],
+    "scanned_at": "2026-06-18T19:00:00.000Z",
+    "schema_version": "0.1.0",
+    "files_scanned": 15,
+    "agent_version": "static-pass-ab/0.1.0 (manual — Nanoclaw unavailable in CI sandbox)",
+    "excluded_paths": [
+      "frontend/node_modules",
+      "backend/venv",
+      ".git"
+    ]
+  },
+  "findings": [
+    {
+      "id": "f001",
+      "provider": "openai",
+      "model": "config_ref",
+      "call_type": "chat_completion",
+      "location": { "file": "backend/app/agent.py", "lines": [63, 68] },
+      "confidence": "high",
+      "evidence": "response = client.chat.completions.create(\n        model=settings.openai_model,\n        messages=messages,\n        temperature=0.3,\n        response_format={\"type\": \"json_object\"},\n    )",
+      "env_refs": ["OPENAI_API_KEY"],
+      "notes": "Primary LLM call site; model resolved from settings.openai_model"
+    },
+    {
+      "id": "f002",
+      "provider": "openai",
+      "model": "unknown",
+      "call_type": "chat_completion",
+      "location": { "file": "backend/app/agent.py", "lines": [6, 45] },
+      "confidence": "high",
+      "evidence": "from openai import OpenAI\n...\n    client = OpenAI(api_key=settings.openai_api_key)",
+      "env_refs": ["OPENAI_API_KEY"]
+    },
+    {
+      "id": "f003",
+      "provider": "openai",
+      "model": "gpt-4o-mini",
+      "call_type": "chat_completion",
+      "location": { "file": "backend/app/config.py", "lines": [5, 7] },
+      "confidence": "high",
+      "evidence": "openai_api_key: str = \"\"\n    openai_model: str = \"gpt-4o-mini\"",
+      "env_refs": ["OPENAI_API_KEY", "OPENAI_MODEL"],
+      "notes": "Default model is static; runtime may override via env OPENAI_MODEL"
+    },
+    {
+      "id": "f004",
+      "provider": "openai",
+      "model": "unknown",
+      "call_type": "agent_framework",
+      "location": { "file": "backend/requirements.txt", "lines": [3, 3] },
+      "confidence": "high",
+      "evidence": "openai==1.58.1",
+      "notes": "Dependency declaration; actual usage in agent.py"
+    },
+    {
+      "id": "f005",
+      "provider": "openai",
+      "model": "config_ref",
+      "call_type": "chat_completion",
+      "location": { "file": "backend/app/main.py", "lines": [5, 52] },
+      "confidence": "medium",
+      "evidence": "from app.agent import generate_answer\n...\n        generated = generate_answer(req.query, results, history)",
+      "wrapper": "generate_answer",
+      "notes": "HTTP handler delegates to OpenAI-backed agent module"
+    }
+  ],
+  "summary": {
+    "providers": ["openai"],
+    "models_detected": ["gpt-4o-mini"],
+    "likely_dynamic_models": 1,
+    "call_types": ["chat_completion", "agent_framework"],
+    "coverage_notes": [
+      "Whole repo scanned excluding node_modules, backend/venv, .git",
+      "backend/app/search.py uses Brave Search API (api.search.brave.com) — not an LLM provider; excluded from LLM findings",
+      "frontend/src/ has no direct LLM SDK usage; calls backend /api/ask only",
+      "backend/.env not readable (mount security); OPENAI_API_KEY inferred from code references only",
+      "Static manual pass — re-run via Nanoclaw for agent-validated output"
+    ]
+  }
+}

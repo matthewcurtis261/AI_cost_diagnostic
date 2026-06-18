@@ -1,0 +1,19 @@
+{
+  "defaults": {
+    "calls_per_month": 5000,
+    "avg_input_tokens": 900,
+    "avg_output_tokens": 350
+  },
+  "findings": {
+    "f001": {
+      "model": "gpt-4o-mini",
+      "calls_per_month": 5000
+    },
+    "f002": {
+      "model": "text-embedding-3-small",
+      "calls_per_month": 20000,
+      "avg_input_tokens": 400,
+      "avg_output_tokens": 0
+    }
+  }
+}
