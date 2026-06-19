@@ -12,6 +12,8 @@ Milestones 1–5 are implemented (discovery, reliability, telemetry, estimation)
 
 ## Quick start
 
+**Requires Node 22.x** (see `.nvmrc`; matches Nanoclaw).
+
 **One command (Nanoclaw agent scan):**
 
 ```bash
@@ -85,7 +87,11 @@ Nanoclaw lives alongside this project (see `../nanoclaw-main`). This repo ships 
 
 ## Development
 
+Requires **Node 22.x** and **pnpm 10+** (see `.nvmrc` and `packageManager` in `package.json`).
+
 ```bash
+node --version   # v22.x
+pnpm install
 pnpm test
 pnpm run validate-findings -- examples/sample-findings.json
 pnpm run normalize-findings -- examples/sample-findings.json

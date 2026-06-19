@@ -1,7 +1,12 @@
-import { spawnSync } from 'child_process';
-
 import { ExitCode } from './lib/exit-codes.js';
 import { findNanoclawRoot } from './lib/nanoclaw.js';
+import {
+  formatNclFailure,
+  isNanoclawHostRunning,
+  printScanTroubleshooting,
+  runNcl,
+  sendNanoclawChat,
+} from './lib/nanoclaw-cli.js';
 import { readState } from './lib/state.js';
 import { resolveAgentFindings } from './lib/findings-path.js';
 
@@ -22,7 +27,7 @@ function buildScanPrompt(scope?: string[], ci?: boolean): string {
   const scopeLine =
     scope && scope.length > 0
       ? `Scope: scan only these subdirectories: ${scope.join(', ')}.`
-      : 'Scope: scan the whole mounted repo (exclude node_modules, .git, dist, etc.).';
+      : 'Scope: scan the whole mounted repo; exclude node_modules, .git, dist, and similar dirs.';
 
   const ciLine = ci
     ? ' CI mode: write complete findings to /workspace/agent/ai-usage-findings.json without interactive questions.'
@@ -48,34 +53,69 @@ export async function runScan(options: ScanOptions): Promise<number> {
     throw new Error('No diagnostic agent registered. Run: diagnostic-agent setup --repo <path>');
   }
 
+  if (!isNanoclawHostRunning(nanoclawRoot)) {
+    console.error('Nanoclaw host is not running (missing data/ncl.sock).');
+    console.error(`Start it from ${nanoclawRoot} with: pnpm run dev`);
+    printScanTroubleshooting();
+    return ExitCode.ERROR;
+  }
+
   const prompt = options.message ?? buildScanPrompt(options.scope, options.ci);
   const timeoutMs = options.waitTimeoutMs ?? (options.ci ? DEFAULT_CI_WAIT_MS : DEFAULT_TIMEOUT_MS);
 
   if (!quiet) {
     console.log(`Triggering scan on agent group ${agentGroupId}...`);
     console.log(`Prompt: ${prompt}`);
-    console.log('(Container restart + cold start may take up to ~60s)');
+    console.log('(Container cold start may take up to ~60s on first run)');
     console.log('');
   }
 
-  const result = spawnSync(
-    'pnpm',
-    ['run', 'ncl', 'groups', 'restart', '--id', agentGroupId, '--message', prompt],
-    {
-      cwd: nanoclawRoot,
-      stdio: quiet ? 'pipe' : 'inherit',
-      shell: process.platform === 'win32',
-      timeout: timeoutMs,
-    },
-  );
+  const restart = runNcl(nanoclawRoot, [
+    'groups',
+    'restart',
+    '--id',
+    agentGroupId,
+    '--message',
+    prompt,
+  ]);
 
-  if (result.status !== 0) {
+  let useChat = false;
+
+  if (restart.response?.ok) {
+    const restarted = (restart.response.data as { restarted?: number } | undefined)?.restarted ?? 0;
+    if (restarted === 0) {
+      if (!quiet) {
+        console.log('No running container for this group; sending prompt via CLI chat instead.');
+      }
+      useChat = true;
+    } else if (!quiet) {
+      console.log(`Restarted ${restarted} container(s) with scan prompt.`);
+    }
+  } else {
+    if (!quiet) {
+      console.error(`groups restart failed: ${formatNclFailure(restart.stdout, restart.stderr, restart.response)}`);
+      console.log('Trying CLI chat instead...');
+    }
+    useChat = true;
+  }
+
+  if (useChat) {
+    const chatStatus = sendNanoclawChat(nanoclawRoot, prompt, { quiet, timeoutMs });
+    if (chatStatus !== 0) {
+      if (!quiet) {
+        console.error('');
+        console.error('Scan trigger failed via CLI chat.');
+        printScanTroubleshooting();
+      }
+      return chatStatus === 2 || chatStatus === 3 ? chatStatus : ExitCode.ERROR;
+    }
+  } else if (restart.status !== 0) {
     if (!quiet) {
       console.error('');
-      console.error('Scan trigger failed. Check Nanoclaw logs.');
-      console.error('Findings are written to groups/diagnostic-agent/ in Nanoclaw after the agent completes.');
+      console.error(`Scan trigger failed: ${formatNclFailure(restart.stdout, restart.stderr, restart.response)}`);
+      printScanTroubleshooting();
     }
-    return result.status ?? ExitCode.ERROR;
+    return restart.status ?? ExitCode.ERROR;
   }
 
   if (options.ci && options.outputPath) {
@@ -84,8 +124,8 @@ export async function runScan(options: ScanOptions): Promise<number> {
 
   if (!quiet) {
     console.log('');
-    console.log('Scan triggered. Check agent output in Nanoclaw logs or chat.');
-    console.log('Expected output: ai-usage-findings.json in the agent workspace.');
+    console.log('Scan complete or in progress. Check agent output in Nanoclaw logs.');
+    console.log('Expected output: ai-usage-findings.json in groups/diagnostic-agent/');
     console.log('Tip: pass --ci --output path for non-interactive wait + copy.');
   }
 

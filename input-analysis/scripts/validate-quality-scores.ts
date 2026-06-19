@@ -5,8 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import { createValidator } from '../../lib/ajv.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
@@ -31,9 +30,7 @@ function main(): void {
   const schema = JSON.parse(fs.readFileSync(SCHEMA_PATH, 'utf-8'));
   const snapshot = JSON.parse(fs.readFileSync(args.file, 'utf-8'));
 
-  const ajv = new Ajv({ allErrors: true, strict: false });
-  addFormats(ajv);
-  const validate = ajv.compile(schema);
+  const validate = createValidator(schema);
 
   if (!validate(snapshot)) {
     console.error('Schema validation failed:');

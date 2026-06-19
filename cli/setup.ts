@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-import { spawnSync } from 'child_process';
 
 import {
   DIAGNOSTIC_AGENT_ROOT,
@@ -11,6 +10,7 @@ import {
   repoMountName,
   writeMountAllowlist,
 } from './lib/nanoclaw.js';
+import { spawnPnpm } from './lib/spawn-pnpm.js';
 import { writeState } from './lib/state.js';
 
 export interface SetupOptions {
@@ -57,22 +57,33 @@ export function runSetup(options: SetupOptions): void {
     '--json',
   ];
 
-  const result = spawnSync('pnpm', args, {
+  const result = spawnPnpm(args, {
     cwd: nanoclawRoot,
-    stdio: ['inherit', 'pipe', 'inherit'],
-    shell: process.platform === 'win32',
+    stdio: ['inherit', 'pipe', 'pipe'],
     encoding: 'utf-8',
     env: { ...process.env, NANOCLAW_ROOT: nanoclawRoot },
   });
 
   if (result.status !== 0) {
-    throw new Error('Failed to register diagnostic agent group in Nanoclaw');
+    const detail = [result.stderr, result.stdout].filter(Boolean).join('\n').trim();
+    const hint =
+      detail.includes('better_sqlite3') || detail.includes('better-sqlite3')
+        ? '\n\nHint: Nanoclaw needs a working better-sqlite3 native binding for Node 22 on Windows.\n' +
+          '  cd nanoclaw-main\n' +
+          '  node --version   # must be v22.x\n' +
+          '  pnpm rebuild better-sqlite3\n' +
+          'If rebuild fails, install Visual Studio Build Tools (Desktop development with C++) and retry.'
+        : '';
+    throw new Error(
+      `Failed to register diagnostic agent group in Nanoclaw${detail ? `:\n${detail}` : ''}${hint}`,
+    );
   }
 
-  const jsonLine = (result.stdout ?? '')
+  const stdout = String(result.stdout ?? '');
+  const jsonLine = stdout
     .split('\n')
-    .map((l) => l.trim())
-    .filter((l) => l.startsWith('{'))
+    .map((l: string) => l.trim())
+    .filter((l: string) => l.startsWith('{'))
     .pop();
   if (!jsonLine) {
     throw new Error('Register script did not return JSON state (--json)');

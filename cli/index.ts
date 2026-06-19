@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { assertNodeVersion } from './lib/check-node.js';
 import { parseAnalyzeInputsArgs, runAnalyzeInputs } from './analyze-inputs.js';
 import { parseCheckArgs, runCheck } from './check.js';
 import { parseDiscoverArgs, runDiscover } from './discover.js';
@@ -263,6 +264,8 @@ function parseGlobalArgs(argv: string[]): {
 }
 
 async function main(): Promise<void> {
+  assertNodeVersion();
+
   const argv = process.argv.slice(2);
   if (argv.length === 0 || argv[0] === '--help' || argv[0] === '-h') {
     printUsage();

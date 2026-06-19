@@ -5,9 +5,35 @@ This guide wires `diagnostic_agent` to your Nanoclaw install so a sandboxed agen
 ## Prerequisites
 
 - [Nanoclaw](https://github.com/nanocoai/nanoclaw) installed and running (`pnpm run dev` or systemd/launchctl service)
-- Node.js 20+
+- **Node.js 22.x** (same as Nanoclaw — see `.nvmrc`; required for native deps like `better-sqlite3`)
+- **pnpm 10+** (`corepack enable` then use the version in `package.json`)
 - Docker (for Nanoclaw agent containers)
 - Your target repo on disk
+
+### Node version
+
+Nanoclaw pins Node 22. Use the same version here so `pnpm install` and agent scans behave consistently:
+
+```bash
+nvm install 22 && nvm use 22   # or nvm-windows / fnm
+node --version                 # v22.x
+pnpm install
+```
+
+If you switch Node versions, reinstall dependencies in both repos (`rm -rf node_modules && pnpm install`).
+
+### better-sqlite3 on Windows
+
+Nanoclaw uses native SQLite bindings. If setup fails with a path like `node-v127-win32-x64\better_sqlite3.node`, the binding was not built for your Node version:
+
+```powershell
+cd C:\path\to\nanoclaw-main
+node --version          # must be v22.x
+pnpm rebuild better-sqlite3
+node -e "require('better-sqlite3')"
+```
+
+If rebuild fails, install [Visual Studio Build Tools](https://visualstudio.microsoft.com/visual-cpp-build-tools/) with **Desktop development with C++**, then run `pnpm rebuild better-sqlite3` again.
 
 ## Quick start
 
@@ -111,7 +137,10 @@ Run `setup --repo` against a checkout of any of these, then `scan`.
 | Issue | Fix |
 |---|---|
 | `Could not find Nanoclaw` | Set `NANOCLAW_ROOT` to your Nanoclaw clone |
-| `CLI socket not reachable` | Start Nanoclaw service; confirm `data/cli.sock` exists |
+| `CLI socket not reachable` | Start Nanoclaw: `cd nanoclaw-main && pnpm run dev` (needs `data/ncl.sock`) |
+| Scan fails silently / exit 1 | Ensure Docker Desktop is running; check `nanoclaw-main/logs/` |
+| `. was unexpected at this time` | Windows cmd quoting bug — update diagnostic_agent and retry `pnpm run scan` |
+| No running container | Scan now falls back to `pnpm run chat`; ensure Nanoclaw host is up |
 | Mount blocked at spawn | Ensure repo path is under an allowlisted root |
 | Scan goes to wrong agent | Diagnostic group must be wired to `cli/local`; re-run `setup` |
 | Container slow first start | Cold start can take ~60s; wait for first reply |
