@@ -10,6 +10,10 @@
     "preinstall": "node scripts/check-node-version.mjs",
     "pretest": "node scripts/check-node-version.mjs",
     "build": "tsc",
+    "ui": "concurrently --kill-others-on-fail \"tsx server/index.ts\" \"pnpm --filter diagnostic-ui dev\"",
+    "ui:build": "pnpm --filter diagnostic-ui build",
+    "ui:preview": "pnpm --filter diagnostic-ui build && tsx server/index.ts",
+    "server": "tsx server/index.ts",
     "dev": "tsx cli/index.ts",
     "setup": "tsx cli/index.ts setup",
     "scan": "tsx cli/index.ts scan",
@@ -38,10 +42,15 @@
   "packageManager": "pnpm@10.33.0",
   "dependencies": {
     "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "cors": "^2.8.5",
+    "express": "^4.21.0"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
     "@types/node": "^22.15.0",
+    "concurrently": "^9.1.0",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"
   },
