@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
+import TelemetrySetupModal from '../components/TelemetrySetupModal'
 import { getState, validatePath, checkNanoclaw, startScan, getFindings, getEstimate, startEstimate } from '../api'
 import type { AppState, EstimateReport, FindingsDocument, NanoclawStatus } from '../types'
 
@@ -23,9 +24,12 @@ export default function Home() {
   const [estimate, setEstimate] = useState<EstimateReport | null>(null)
 
   const [rescan, setRescan] = useState(false)
+  const [showTelemetryModal, setShowTelemetryModal] = useState(false)
 
   const [logs, setLogs] = useState<string[]>([])
+  const [diagnosisLogs, setDiagnosisLogs] = useState<string[]>([])
   const logRef = useRef<HTMLDivElement>(null)
+  const diagRef = useRef<HTMLDivElement>(null)
   const esRef = useRef<EventSource | null>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -42,7 +46,7 @@ export default function Home() {
   // Poll while running
   useEffect(() => {
     if (!state) return
-    const isRunning = state.scanStatus === 'running' || state.estimateStatus === 'running'
+    const isRunning = state.scanStatus === 'running' || state.estimateStatus === 'running' || state.diagnosisStatus === 'running' || state.instrumentStatus === 'running'
     if (isRunning) {
       pollRef.current = setInterval(async () => {
         try {
@@ -61,7 +65,7 @@ export default function Home() {
             const e = await getEstimate()
             setEstimate(e)
           }
-          if (s.scanStatus !== 'running' && s.estimateStatus !== 'running') {
+          if (s.scanStatus !== 'running' && s.estimateStatus !== 'running' && s.diagnosisStatus !== 'running' && s.instrumentStatus !== 'running') {
             clearInterval(pollRef.current!)
           }
         } catch {}
@@ -70,24 +74,38 @@ export default function Home() {
     return () => { if (pollRef.current) clearInterval(pollRef.current) }
   }, [state?.scanStatus, state?.estimateStatus])
 
-  // Log SSE while scanning
+  // Log SSE while scanning or diagnosing
   useEffect(() => {
-    if (state?.scanStatus === 'running' && !esRef.current) {
+    const active = state?.scanStatus === 'running' || state?.diagnosisStatus === 'running' || state?.instrumentStatus === 'running'
+    if (active && !esRef.current) {
       const es = new EventSource('/api/logs')
       esRef.current = es
       es.onmessage = (e) => {
-        setLogs(prev => [...prev.slice(-500), e.data])
-        setTimeout(() => {
-          if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
-        }, 10)
+        try {
+          const msg = JSON.parse(e.data) as { type?: string; message?: string }
+          const line = msg.message ?? e.data
+          if (line.startsWith('[diagnosis]')) {
+            setDiagnosisLogs(prev => [...prev.slice(-500), line.replace(/^\[diagnosis\] /, '')])
+            setTimeout(() => {
+              if (diagRef.current) diagRef.current.scrollTop = diagRef.current.scrollHeight
+            }, 10)
+          } else {
+            setLogs(prev => [...prev.slice(-500), line])
+            setTimeout(() => {
+              if (logRef.current) logRef.current.scrollTop = logRef.current.scrollHeight
+            }, 10)
+          }
+        } catch {
+          setLogs(prev => [...prev.slice(-500), e.data])
+        }
       }
       es.onerror = () => { es.close(); esRef.current = null }
     }
-    if (state?.scanStatus !== 'running' && esRef.current) {
+    if (!active && esRef.current) {
       esRef.current.close()
       esRef.current = null
     }
-  }, [state?.scanStatus])
+  }, [state?.scanStatus, state?.diagnosisStatus])
 
   async function handleValidate() {
     if (!pathInput.trim()) return
@@ -118,6 +136,7 @@ export default function Home() {
   async function handleStartScan() {
     if (!pathInput.trim()) return
     setLogs([])
+    setDiagnosisLogs([])
     setRescan(false)
     setFindings(null)
     setEstimate(null)
@@ -277,16 +296,45 @@ export default function Home() {
 
         {/* Error */}
         {showError && (
-          <div className="banner banner--error">
-            <span className="banner-icon">✗</span>
-            <div className="banner-body">
-              <div className="banner-title">Scan failed</div>
-              <div>{state?.scanError ?? 'An unknown error occurred.'}</div>
-              <button className="btn btn--secondary btn--sm" style={{ marginTop: 8 }} onClick={() => setState(s => s ? { ...s, scanStatus: 'idle' } : s)}>
-                Try Again
-              </button>
+          <>
+            <div className="banner banner--error">
+              <span className="banner-icon">✗</span>
+              <div className="banner-body">
+                <div className="banner-title">Scan failed</div>
+                <div>{state?.scanError ?? 'An unknown error occurred.'}</div>
+                <button className="btn btn--secondary btn--sm" style={{ marginTop: 8 }} onClick={() => setState(s => s ? { ...s, scanStatus: 'idle' } : s)}>
+                  Try Again
+                </button>
+              </div>
             </div>
-          </div>
+
+            {(state?.diagnosisStatus !== 'idle' || diagnosisLogs.length > 0) && (
+              <div className="card" style={{ marginTop: 12 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  {state?.diagnosisStatus === 'running' && <span className="spinner spinner--sm" />}
+                  <span style={{ fontWeight: 600, fontSize: 14 }}>
+                    {state?.diagnosisStatus === 'running'
+                      ? 'Nanoclaw is diagnosing the error...'
+                      : state?.diagnosisStatus === 'done'
+                      ? '✓ Nanoclaw diagnosis'
+                      : '✗ Diagnosis unavailable'}
+                  </span>
+                </div>
+                {state?.diagnosisStatus === 'error' && state.diagnosisError && (
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 8 }}>{state.diagnosisError}</div>
+                )}
+                {diagnosisLogs.length > 0 && (
+                  <div className="log-viewer" ref={diagRef} style={{ maxHeight: 320 }}>
+                    {diagnosisLogs.map((line, i) => (
+                      <div key={i} className={`log-line${line.includes('✓') ? ' log-line--success' : line.includes('✗') || line.toLowerCase().includes('error') ? ' log-line--error' : ' log-line--info'}`}>
+                        {line}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </>
         )}
 
         {/* Results */}
@@ -355,14 +403,31 @@ export default function Home() {
             </div>
 
             {!state?.hasEvents && (
-              <div className="info-box">
-                <strong>Want deeper savings analysis?</strong> Set up telemetry to capture real token usage from your app. This lets us analyze actual inputs and recommend the cheapest model for each call.{' '}
-                <a href="https://docs.anthropic.com" target="_blank" rel="noreferrer">Learn more →</a>
+              <div className="info-box" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16 }}>
+                <div>
+                  <strong>Want deeper savings analysis?</strong> Set up telemetry to capture real token usage from your app. This lets us analyze actual inputs and recommend the cheapest model for each call.
+                </div>
+                <button
+                  className="btn btn--primary btn--sm"
+                  style={{ flexShrink: 0 }}
+                  onClick={() => setShowTelemetryModal(true)}
+                >
+                  Set Up Telemetry
+                </button>
               </div>
             )}
           </>
         )}
       </div>
+      {showTelemetryModal && findings && (
+        <TelemetrySetupModal
+          findings={findings.findings}
+          initialInstrumentStatus={state?.instrumentStatus}
+          initialExpiresAt={state?.telemetryExpiresAt}
+          initialRemoveAt={state?.telemetryRemoveAt}
+          onClose={() => setShowTelemetryModal(false)}
+        />
+      )}
     </Layout>
   )
 }

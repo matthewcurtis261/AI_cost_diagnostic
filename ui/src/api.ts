@@ -61,6 +61,14 @@ export function getAnalysis(): Promise<AnalyzeInputsReport> {
   return fetchJSON<AnalyzeInputsReport>('/api/analyze')
 }
 
+export function startInstrumentation(options?: { durationHours?: number; removeFromCode?: boolean }): Promise<void> {
+  return fetchJSON('/api/instrument', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(options ?? {}),
+  })
+}
+
 export function createLogsEventSource(): EventSource {
   return new EventSource('/api/logs')
 }

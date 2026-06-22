@@ -9,6 +9,12 @@ export interface AppState {
   scanError: string | null
   estimateError: string | null
   analyzeError: string | null
+  diagnosisStatus: JobStatus
+  diagnosisError: string | null
+  instrumentStatus: JobStatus
+  instrumentError: string | null
+  telemetryExpiresAt: string | null
+  telemetryRemoveAt: string | null
   lastPreset: string
   hasFindings: boolean
   hasEstimate: boolean

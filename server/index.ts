@@ -11,9 +11,138 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const rootDir = path.join(__dirname, '..')
 const workDir = path.join(os.homedir(), '.diagnostic_agent', 'ui-workspace')
 const eventsPath = path.join(os.homedir(), '.diagnostic_agent', 'events.jsonl')
+const jobsPath = path.join(os.homedir(), '.diagnostic_agent', 'scheduled-jobs.json')
 const tsxBin = path.join(rootDir, 'node_modules', '.bin', 'tsx')
+const nanoclawRoot = process.env.NANOCLAW_ROOT ?? path.join(rootDir, '..', 'nanoclaw')
+const pnpmBin = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm'
 
 fs.mkdirSync(workDir, { recursive: true })
+
+// ── Scheduled jobs ────────────────────────────────────────────────────────────
+
+interface ScheduledJob {
+  id: string
+  type: 'disable-telemetry' | 'remove-telemetry'
+  scheduledFor: string      // ISO timestamp
+  repoPath: string | null
+  findings?: Array<{ id: string; provider: string; location: { file: string; lines: number[] }; confidence: string; evidence: string }>
+  createdAt: string
+  executed: boolean
+}
+
+function loadJobs(): ScheduledJob[] {
+  if (!fs.existsSync(jobsPath)) return []
+  try { return JSON.parse(fs.readFileSync(jobsPath, 'utf-8')) as ScheduledJob[] } catch { return [] }
+}
+
+function saveJobs(jobs: ScheduledJob[]): void {
+  fs.mkdirSync(path.dirname(jobsPath), { recursive: true })
+  fs.writeFileSync(jobsPath, JSON.stringify(jobs, null, 2), 'utf-8')
+}
+
+function addJob(job: Omit<ScheduledJob, 'id' | 'createdAt' | 'executed'>): ScheduledJob {
+  const jobs = loadJobs()
+  const newJob: ScheduledJob = { ...job, id: `job-${Date.now()}`, createdAt: new Date().toISOString(), executed: false }
+  jobs.push(newJob)
+  saveJobs(jobs)
+  return newJob
+}
+
+function buildRemovalPrompt(
+  findings: ScheduledJob['findings'],
+  repoPath: string | null,
+): string {
+  const sites = (findings ?? []).map(f => {
+    const lineStr = f.location.lines.length > 0 ? ` line ${f.location.lines[0]}` : ''
+    return `  • ${f.location.file}${lineStr} — provider: ${f.provider}, finding_id: "${f.id}"`
+  }).join('\n')
+
+  return `Previously you added AI cost telemetry wrappers to a project${repoPath ? ` at: ${repoPath}` : ''}. The 24-hour telemetry period has ended. Please now REMOVE the wrappers from each call site.
+
+Call sites that were instrumented:
+${sites}
+
+For each file, remove:
+- The diagnostic_agent_telemetry / diagnostic-agent/telemetry import line
+- The wrapper call — restore the original client instantiation (e.g. change \`const client = instrumentAnthropic(new Anthropic(), ...)\` back to \`const client = new Anthropic()\`)
+
+Rules:
+- Make MINIMAL changes — only remove what was added. Do not touch any other code.
+- When finished, print a summary of files restored.`
+}
+
+function executeJob(job: ScheduledJob): void {
+  broadcastLog(`[schedule] Executing scheduled job: ${job.type}`)
+
+  if (job.type === 'disable-telemetry') {
+    // Write DIAGNOSTIC_AGENT_TELEMETRY=0 into the project's .env
+    const envFile = job.repoPath ? path.join(job.repoPath, '.env') : null
+    if (envFile) {
+      try {
+        let content = fs.existsSync(envFile) ? fs.readFileSync(envFile, 'utf-8') : ''
+        if (content.includes('DIAGNOSTIC_AGENT_TELEMETRY')) {
+          content = content.replace(/^DIAGNOSTIC_AGENT_TELEMETRY=.*/m, 'DIAGNOSTIC_AGENT_TELEMETRY=0')
+        } else {
+          content += (content.endsWith('\n') || content === '' ? '' : '\n') + 'DIAGNOSTIC_AGENT_TELEMETRY=0\n'
+        }
+        fs.writeFileSync(envFile, content, 'utf-8')
+        broadcastLog('[schedule] ✓ Telemetry disabled — set DIAGNOSTIC_AGENT_TELEMETRY=0 in .env')
+        // Update state to reflect expiry has been applied
+        state.telemetryExpiresAt = null
+      } catch (err) {
+        broadcastLog(`[schedule] ✗ Could not write .env: ${err instanceof Error ? err.message : err}`)
+      }
+    } else {
+      broadcastLog('[schedule] ✗ No repo path — cannot locate .env to disable telemetry')
+    }
+  }
+
+  if (job.type === 'remove-telemetry') {
+    const prompt = buildRemovalPrompt(job.findings, job.repoPath)
+    broadcastLog('[schedule] Sending removal task to Nanoclaw...')
+    const child = spawn(pnpmBin, ['run', 'chat', '--', prompt], {
+      cwd: nanoclawRoot,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
+    child.stdout.on('data', (data: Buffer) => {
+      data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(`[schedule] ${line.trim()}`) })
+    })
+    child.stderr.on('data', (data: Buffer) => {
+      data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(`[schedule] ${line.trim()}`) })
+    })
+    child.on('close', (code: number | null) => {
+      if (code === 0) {
+        broadcastLog('[schedule] ✓ Wrapper code removed from repository')
+        state.telemetryRemoveAt = null
+      } else {
+        broadcastLog(`[schedule] ✗ Removal failed (exit ${code}) — is Nanoclaw running?`)
+      }
+    })
+  }
+
+  // Mark executed
+  const jobs = loadJobs()
+  const idx = jobs.findIndex(j => j.id === job.id)
+  if (idx >= 0) { jobs[idx].executed = true; saveJobs(jobs) }
+}
+
+function checkDueJobs(): void {
+  const now = new Date()
+  const jobs = loadJobs()
+  for (const job of jobs) {
+    if (!job.executed && new Date(job.scheduledFor) <= now) {
+      executeJob(job)
+    }
+  }
+}
+
+// Restore telemetryExpiresAt / telemetryRemoveAt from pending jobs on startup
+function restoreScheduledState(): { expiresAt: string | null; removeAt: string | null } {
+  const jobs = loadJobs().filter(j => !j.executed && new Date(j.scheduledFor) > new Date())
+  const disable = jobs.find(j => j.type === 'disable-telemetry')
+  const remove = jobs.find(j => j.type === 'remove-telemetry')
+  return { expiresAt: disable?.scheduledFor ?? null, removeAt: remove?.scheduledFor ?? null }
+}
 
 const app = express()
 app.use(cors())
@@ -27,6 +156,8 @@ function existingStatus(filePath: string): JobStatus {
   return fs.existsSync(filePath) ? 'done' : 'idle'
 }
 
+const { expiresAt: _initExpires, removeAt: _initRemove } = restoreScheduledState()
+
 const state = {
   repoPath: null as string | null,
   scanStatus: existingStatus(path.join(workDir, 'ai-usage-findings.json')),
@@ -35,8 +166,18 @@ const state = {
   scanError: null as string | null,
   estimateError: null as string | null,
   analyzeError: null as string | null,
+  diagnosisStatus: 'idle' as JobStatus,
+  diagnosisError: null as string | null,
+  instrumentStatus: 'idle' as JobStatus,
+  instrumentError: null as string | null,
+  telemetryExpiresAt: _initExpires,  // ISO string — when env-var disable fires
+  telemetryRemoveAt: _initRemove,    // ISO string — when code removal fires (null if not scheduled)
   lastPreset: 'balanced',
 }
+
+// Run due jobs on startup and every 30 seconds
+checkDueJobs()
+setInterval(checkDueJobs, 30_000)
 
 const sseClients = new Set<express.Response>()
 
@@ -65,6 +206,44 @@ app.get('/api/state', (_req, res) => {
     hasEvents: fs.existsSync(eventsPath),
   })
 })
+
+function runDiagnosisJob(errorOutput: string): void {
+  state.diagnosisStatus = 'running'
+  state.diagnosisError = null
+  broadcastStatus('diagnosis', 'running')
+  broadcastLog('[diagnosis] Asking Nanoclaw to diagnose the scan error...')
+
+  const prompt =
+    `The AI Cost Diagnostic deep scan just failed. Here is the error output:\n\n${errorOutput}\n\n` +
+    `Please explain what went wrong and provide clear step-by-step instructions to fix it.`
+
+  const child = spawn(pnpmBin, ['run', 'chat', '--', prompt], {
+    cwd: nanoclawRoot,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+
+  child.stdout.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) broadcastLog(`[diagnosis] ${line.trim()}`)
+    })
+  })
+  child.stderr.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) broadcastLog(`[diagnosis] ${line.trim()}`)
+    })
+  })
+  child.on('close', (code: number | null) => {
+    if (code === 0) {
+      state.diagnosisStatus = 'done'
+      broadcastLog('[diagnosis] ✓ Diagnosis complete')
+    } else {
+      state.diagnosisStatus = 'error'
+      state.diagnosisError = `Diagnosis failed (exit ${code}) — is Nanoclaw running?`
+      broadcastLog(`[diagnosis] ✗ Could not reach Nanoclaw for diagnosis (exit ${code})`)
+    }
+    broadcastStatus('diagnosis', state.diagnosisStatus, state.diagnosisError ?? undefined)
+  })
+}
 
 // POST /api/validate-path
 app.post('/api/validate-path', (req, res) => {
@@ -107,12 +286,6 @@ function probeNanoclawSocket(socketPath: string): Promise<boolean> {
 
 // GET /api/nanoclaw-check
 app.get('/api/nanoclaw-check', async (_req, res) => {
-  // Nanoclaw socket is at <nanoclaw-dir>/data/ncl.sock
-  // Look for it next to this repo (sibling directory) or via NANOCLAW_ROOT env.
-  const nanoclawRoot =
-    process.env.NANOCLAW_ROOT ??
-    path.join(rootDir, '..', 'nanoclaw')
-
   const socketPath = path.join(nanoclawRoot, 'data', 'ncl.sock')
   const socketExists = fs.existsSync(socketPath)
 
@@ -146,6 +319,8 @@ app.post('/api/scan', (req, res) => {
   state.repoPath = repoPath
   state.scanStatus = 'running'
   state.scanError = null
+  state.diagnosisStatus = 'idle'
+  state.diagnosisError = null
   // Reset downstream statuses when re-scanning
   state.estimateStatus = 'idle'
   state.analyzeStatus = 'idle'
@@ -161,12 +336,17 @@ app.post('/api/scan', (req, res) => {
   if (mode === 'static') args.push('--static')
 
   const child = spawn(tsxBin, args, { cwd: rootDir })
+  const outputLines: string[] = []
 
   child.stdout.on('data', (data: Buffer) => {
-    data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(line.trim()) })
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) { broadcastLog(line.trim()); outputLines.push(line.trim()) }
+    })
   })
   child.stderr.on('data', (data: Buffer) => {
-    data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(line.trim()) })
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) { broadcastLog(line.trim()); outputLines.push(line.trim()) }
+    })
   })
   child.on('close', (code: number | null) => {
     if (code === 0) {
@@ -176,6 +356,9 @@ app.post('/api/scan', (req, res) => {
       state.scanStatus = 'error'
       state.scanError = `Scan exited with code ${code}`
       broadcastLog(`✗ Scan failed (exit ${code})`)
+      if (mode === 'full') {
+        runDiagnosisJob(outputLines.slice(-100).join('\n'))
+      }
     }
     broadcastStatus('scan', state.scanStatus, state.scanError ?? undefined)
     if (code === 0) runEstimateJob()
@@ -291,6 +474,136 @@ app.get('/api/analyze', (_req, res) => {
   if (!fs.existsSync(p)) { res.status(404).json({ error: 'No analysis yet' }); return }
   res.json(JSON.parse(fs.readFileSync(p, 'utf-8')))
 })
+
+// POST /api/instrument  — ask Nanoclaw to install the wrapper + patch all call sites
+app.post('/api/instrument', (req, res) => {
+  const findingsPath = path.join(workDir, 'ai-usage-findings.json')
+  if (!fs.existsSync(findingsPath)) {
+    res.status(400).json({ error: 'No findings yet — run a scan first' }); return
+  }
+  if (state.instrumentStatus === 'running') {
+    res.status(409).json({ error: 'Already running' }); return
+  }
+
+  const { durationHours, removeFromCode } = (req.body ?? {}) as {
+    durationHours?: number
+    removeFromCode?: boolean
+  }
+
+  const findings = JSON.parse(fs.readFileSync(findingsPath, 'utf-8')) as {
+    findings: Array<{ id: string; provider: string; location: { file: string; lines: number[] }; confidence: string; evidence: string }>
+  }
+
+  // Schedule expiry jobs before starting so state is visible immediately
+  if (durationHours && durationHours > 0) {
+    const expiresAt = new Date(Date.now() + durationHours * 60 * 60 * 1000).toISOString()
+
+    const disableJob = addJob({ type: 'disable-telemetry', scheduledFor: expiresAt, repoPath: state.repoPath })
+    state.telemetryExpiresAt = disableJob.scheduledFor
+
+    if (removeFromCode) {
+      const removeJob = addJob({
+        type: 'remove-telemetry',
+        scheduledFor: expiresAt,
+        repoPath: state.repoPath,
+        findings: findings.findings.filter(f => f.confidence !== 'low'),
+      })
+      state.telemetryRemoveAt = removeJob.scheduledFor
+    }
+  } else {
+    state.telemetryExpiresAt = null
+    state.telemetryRemoveAt = null
+  }
+
+  state.instrumentStatus = 'running'
+  state.instrumentError = null
+  broadcastStatus('instrument', 'running')
+  runInstrumentJob(findings, state.repoPath)
+  res.json({ started: true })
+})
+
+function buildInstrumentPrompt(
+  findings: { findings: Array<{ id: string; provider: string; location: { file: string; lines: number[] }; confidence: string; evidence: string }> },
+  repoPath: string | null,
+): string {
+  const callSites = findings.findings.filter(f => f.confidence !== 'low')
+  const hasPy = callSites.some(f => f.location.file.endsWith('.py'))
+  const hasTs = callSites.some(f => !f.location.file.endsWith('.py'))
+
+  const installLines: string[] = []
+  if (hasPy) installLines.push(`- Python: pip install -e "${rootDir}/telemetry/python" from within the project directory`)
+  if (hasTs) installLines.push(`- TypeScript/JS: add diagnostic-agent as a local dependency (e.g. pnpm add "${rootDir}" or npm install "${rootDir}") using whatever package manager the project uses`)
+
+  const sitesList = callSites.map(f => {
+    const lineStr = f.location.lines.length > 0 ? ` line ${f.location.lines[0]}` : ''
+    return `  • ${f.location.file}${lineStr} — provider: ${f.provider}, finding_id: "${f.id}", evidence: ${f.evidence}`
+  }).join('\n')
+
+  return `You need to add AI cost telemetry wrappers to a project${repoPath ? ` at: ${repoPath}` : ''}.
+
+STEP 1 — Install the telemetry package:
+${installLines.length > 0 ? installLines.join('\n') : '  (nothing to install)'}
+
+STEP 2 — Add the wrapper to each call site listed below. Work through them file by file.
+
+Call sites to instrument:
+${sitesList}
+
+For TypeScript/JS files:
+  Add import:  import { instrumentAnthropic } from 'diagnostic-agent/telemetry'
+               import { instrumentOpenAI }    from 'diagnostic-agent/telemetry'
+  Wrap client: const client = instrumentAnthropic(new Anthropic(), { findingId: '<id>' })
+               const client = instrumentOpenAI(new OpenAI(), { findingId: '<id>' })
+
+For Python files:
+  Add import:  from diagnostic_agent_telemetry import instrument_anthropic
+               from diagnostic_agent_telemetry import instrument_openai
+  Wrap client: client = instrument_anthropic(Anthropic(), finding_id="<id>")
+               instrument_openai(client, finding_id="<id>")  # if client is already assigned
+
+Rules — follow these exactly:
+- Use the exact finding_id shown for each call site
+- Make MINIMAL changes: only add the import and wrap the client. Do not refactor anything else.
+- If a file already imports the wrapper, skip the duplicate import
+- If the client is already in a variable, wrap it in place (e.g. client = instrumentAnthropic(client, ...))
+- When finished, print a summary listing each file modified and what changed`
+}
+
+function runInstrumentJob(
+  findings: { findings: Array<{ id: string; provider: string; location: { file: string; lines: number[] }; confidence: string; evidence: string }> },
+  repoPath: string | null,
+): void {
+  const prompt = buildInstrumentPrompt(findings, repoPath)
+
+  broadcastLog('[instrument] Sending instrumentation task to Nanoclaw...')
+
+  const child = spawn(pnpmBin, ['run', 'chat', '--', prompt], {
+    cwd: nanoclawRoot,
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+
+  child.stdout.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) broadcastLog(`[instrument] ${line.trim()}`)
+    })
+  })
+  child.stderr.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) broadcastLog(`[instrument] ${line.trim()}`)
+    })
+  })
+  child.on('close', (code: number | null) => {
+    if (code === 0) {
+      state.instrumentStatus = 'done'
+      broadcastLog('[instrument] ✓ Instrumentation complete')
+    } else {
+      state.instrumentStatus = 'error'
+      state.instrumentError = `Nanoclaw exited with code ${code} — is it running?`
+      broadcastLog(`[instrument] ✗ Instrumentation failed (exit ${code})`)
+    }
+    broadcastStatus('instrument', state.instrumentStatus, state.instrumentError ?? undefined)
+  })
+}
 
 // Serve built UI in production
 const uiDist = path.join(__dirname, '..', 'ui', 'dist')
