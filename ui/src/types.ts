@@ -20,6 +20,9 @@ export interface AppState {
   hasEstimate: boolean
   hasAnalysis: boolean
   hasEvents: boolean
+  hasAgentReport: boolean
+  agentScanStatus: JobStatus
+  agentScanError: string | null
 }
 
 export interface Finding {
@@ -158,4 +161,50 @@ export interface NanoclawStatus {
   responding: boolean
   ready: boolean
   socketPath: string
+}
+
+export interface AgentTrendBucket {
+  date: string
+  inputTokens: number
+  outputTokens: number
+  costUsd: number
+  sessions: number
+}
+
+export interface AgentProjectSummary {
+  label: string
+  tool: 'nanoclaw' | 'claude-code'
+  sessions: number
+  inputTokens: number
+  outputTokens: number
+  cacheCreationTokens: number
+  cacheReadTokens: number
+  costUsd: number
+}
+
+export interface AgentModelSummary {
+  sessions: number
+  inputTokens: number
+  outputTokens: number
+  costUsd: number
+}
+
+export interface AgentReport {
+  scanned_at: string
+  totals: {
+    sessions: number
+    messages: number
+    inputTokens: number
+    outputTokens: number
+    cacheCreationTokens: number
+    cacheReadTokens: number
+    costUsd: number
+  }
+  by_project: Record<string, AgentProjectSummary>
+  by_model: Record<string, AgentModelSummary>
+  by_tool: Record<string, { sessions: number; costUsd: number }>
+  trend: AgentTrendBucket[]
+  potential_savings: {
+    if_downgrade_to_haiku: { savingsUsd: number; savingsPct: number }
+  }
 }

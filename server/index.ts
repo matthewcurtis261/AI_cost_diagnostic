@@ -158,6 +158,8 @@ function existingStatus(filePath: string): JobStatus {
 
 const { expiresAt: _initExpires, removeAt: _initRemove } = restoreScheduledState()
 
+const agentReportPath = path.join(workDir, 'agent-report.json')
+
 const state = {
   repoPath: null as string | null,
   scanStatus: existingStatus(path.join(workDir, 'ai-usage-findings.json')),
@@ -170,9 +172,11 @@ const state = {
   diagnosisError: null as string | null,
   instrumentStatus: 'idle' as JobStatus,
   instrumentError: null as string | null,
-  telemetryExpiresAt: _initExpires,  // ISO string — when env-var disable fires
-  telemetryRemoveAt: _initRemove,    // ISO string — when code removal fires (null if not scheduled)
+  telemetryExpiresAt: _initExpires,
+  telemetryRemoveAt: _initRemove,
   lastPreset: 'balanced',
+  agentScanStatus: existingStatus(agentReportPath),
+  agentScanError: null as string | null,
 }
 
 // Run due jobs on startup and every 30 seconds
@@ -200,11 +204,56 @@ function broadcastStatus(kind: string, status: string, error?: string): void {
 app.get('/api/state', (_req, res) => {
   res.json({
     ...state,
-    hasFindings: fs.existsSync(path.join(workDir, 'ai-usage-findings.json')),
-    hasEstimate: fs.existsSync(path.join(workDir, 'spend-estimate.json')),
-    hasAnalysis: fs.existsSync(path.join(workDir, 'input-analysis.json')),
-    hasEvents: fs.existsSync(eventsPath),
+    hasFindings:     fs.existsSync(path.join(workDir, 'ai-usage-findings.json')),
+    hasEstimate:     fs.existsSync(path.join(workDir, 'spend-estimate.json')),
+    hasAnalysis:     fs.existsSync(path.join(workDir, 'input-analysis.json')),
+    hasEvents:       fs.existsSync(eventsPath),
+    hasAgentReport:  fs.existsSync(agentReportPath),
   })
+})
+
+// ── Agent scan ────────────────────────────────────────────────────────────────
+
+function runAgentScanJob(): void {
+  if (state.agentScanStatus === 'running') return
+  state.agentScanStatus = 'running'
+  state.agentScanError = null
+  broadcastStatus('agentScan', 'running')
+
+  const child = spawn(tsxBin, ['cli/agent-scan.ts', '--output', agentReportPath], { cwd: rootDir })
+
+  child.stdout.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(`[agent-scan] ${line.trim()}`) })
+  })
+  child.stderr.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(`[agent-scan] ${line.trim()}`) })
+  })
+  child.on('close', (code: number | null) => {
+    if (code === 0) {
+      state.agentScanStatus = 'done'
+    } else {
+      state.agentScanStatus = 'error'
+      state.agentScanError = `Agent scan exited with code ${code}`
+    }
+    broadcastStatus('agentScan', state.agentScanStatus, state.agentScanError ?? undefined)
+  })
+}
+
+// Auto-rescan every 5 minutes when an agent report exists
+setInterval(() => {
+  if (fs.existsSync(agentReportPath)) runAgentScanJob()
+}, 5 * 60 * 1000)
+
+// POST /api/agent-scan
+app.post('/api/agent-scan', (_req, res) => {
+  runAgentScanJob()
+  res.json({ started: true })
+})
+
+// GET /api/agent-report
+app.get('/api/agent-report', (_req, res) => {
+  if (!fs.existsSync(agentReportPath)) { res.status(404).json({ error: 'No agent report yet' }); return }
+  res.json(JSON.parse(fs.readFileSync(agentReportPath, 'utf-8')))
 })
 
 function runDiagnosisJob(errorOutput: string): void {
@@ -614,10 +663,21 @@ if (fs.existsSync(uiDist)) {
   })
 }
 
-const PORT = process.env.PORT ?? 3001
-app.listen(PORT, () => {
-  console.log(`\nAI Cost Diagnostic server → http://localhost:${PORT}`)
-  if (!fs.existsSync(uiDist)) {
-    console.log('UI dev server        → http://localhost:5173  (run pnpm --filter ui dev)\n')
-  }
-})
+function listenOnAvailablePort(startPort: number, maxAttempts = 10): void {
+  const port = startPort
+  app.listen(port, () => {
+    console.log(`\nAI Cost Diagnostic server → http://localhost:${port}`)
+    if (!fs.existsSync(uiDist)) {
+      console.log('UI dev server        → http://localhost:5173  (run pnpm --filter ui dev)\n')
+    }
+  }).on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE' && maxAttempts > 1) {
+      console.log(`Port ${port} in use, trying ${port + 1}...`)
+      listenOnAvailablePort(port + 1, maxAttempts - 1)
+    } else {
+      throw err
+    }
+  })
+}
+
+listenOnAvailablePort(Number(process.env.PORT ?? 3001))

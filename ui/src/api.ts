@@ -1,4 +1,4 @@
-import type { AppState, FindingsDocument, EstimateReport, AnalyzeInputsReport, NanoclawStatus, QualityPreset } from './types'
+import type { AppState, FindingsDocument, EstimateReport, AnalyzeInputsReport, NanoclawStatus, QualityPreset, AgentReport } from './types'
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options)
@@ -71,4 +71,12 @@ export function startInstrumentation(options?: { durationHours?: number; removeF
 
 export function createLogsEventSource(): EventSource {
   return new EventSource('/api/logs')
+}
+
+export function startAgentScan(): Promise<void> {
+  return fetchJSON('/api/agent-scan', { method: 'POST' })
+}
+
+export function getAgentReport(): Promise<AgentReport> {
+  return fetchJSON<AgentReport>('/api/agent-report')
 }

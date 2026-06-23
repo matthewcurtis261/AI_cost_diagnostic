@@ -4,9 +4,9 @@
     {
       "name": "ui",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["run", "dev", "--", "--port", "5176"],
+      "runtimeArgs": ["run", "dev"],
       "cwd": "ui",
-      "port": 5176,
+      "port": 5173,
       "autoPort": false
     }
   ]

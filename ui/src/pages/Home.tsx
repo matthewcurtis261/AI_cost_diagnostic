@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Layout from '../components/Layout'
 import TelemetrySetupModal from '../components/TelemetrySetupModal'
-import { getState, validatePath, checkNanoclaw, startScan, getFindings, getEstimate, startEstimate } from '../api'
+import { getState, validatePath, checkNanoclaw, startScan, getFindings, getEstimate, startEstimate, startAgentScan } from '../api'
 import type { AppState, EstimateReport, FindingsDocument, NanoclawStatus } from '../types'
 
 function fmt(n: number) {
@@ -25,6 +25,7 @@ export default function Home() {
 
   const [rescan, setRescan] = useState(false)
   const [showTelemetryModal, setShowTelemetryModal] = useState(false)
+  const [agentScanning, setAgentScanning] = useState(false)
 
   const [logs, setLogs] = useState<string[]>([])
   const [diagnosisLogs, setDiagnosisLogs] = useState<string[]>([])
@@ -133,6 +134,24 @@ export default function Home() {
     }
   }
 
+  async function handleAgentScan() {
+    setAgentScanning(true)
+    try {
+      await startAgentScan()
+      // poll state until done
+      const poll = setInterval(async () => {
+        const s = await getState()
+        setState(s)
+        if (s.agentScanStatus === 'done' || s.agentScanStatus === 'error') {
+          clearInterval(poll)
+          setAgentScanning(false)
+        }
+      }, 1500)
+    } catch {
+      setAgentScanning(false)
+    }
+  }
+
   async function handleStartScan() {
     if (!pathInput.trim()) return
     setLogs([])
@@ -187,7 +206,7 @@ export default function Home() {
         {!showResults && (
           <div className="card" style={{ marginBottom: 16 }}>
             <div className="card-title">Step 1 — Add your project</div>
-            <div className="form-group" style={{ marginBottom: 0 }}>
+            <div className="form-group">
               <div className="input-row">
                 <input
                   className={`input${pathValid === true ? ' input--valid' : pathValid === false ? ' input--invalid' : ''}`}
@@ -207,6 +226,38 @@ export default function Home() {
                 {pathValid === false && <span style={{ color: 'var(--red)' }}>✗ Path not found or not a folder</span>}
                 {pathValid === null && 'Tip: drag your project folder onto the terminal to get its path, then paste it here.'}
               </div>
+            </div>
+
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 16, marginTop: 4 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 8, color: 'var(--text-muted)' }}>
+                Or — scan all local AI agent sessions
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+                <button
+                  className="btn btn--secondary"
+                  onClick={handleAgentScan}
+                  disabled={agentScanning || state?.agentScanStatus === 'running'}
+                >
+                  {agentScanning || state?.agentScanStatus === 'running'
+                    ? <><span className="spinner spinner--sm" /> Scanning agent sessions...</>
+                    : state?.hasAgentReport
+                    ? '↺ Rescan Agent Usage'
+                    : 'Scan Agent Usage'}
+                </button>
+                {state?.hasAgentReport && (
+                  <button className="btn btn--primary" onClick={() => navigate('/agent-usage')}>
+                    View Agent Usage →
+                  </button>
+                )}
+                <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                  Reads ~/.claude/projects — covers Claude Code and Nanoclaw sessions
+                </span>
+              </div>
+              {state?.agentScanStatus === 'error' && (
+                <div style={{ fontSize: 12, color: 'var(--red)', marginTop: 6 }}>
+                  ✗ {state.agentScanError ?? 'Agent scan failed'}
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -398,6 +449,11 @@ export default function Home() {
               {state?.hasEvents && (
                 <button className="btn btn--secondary" onClick={() => navigate('/analyze')}>
                   Analyze Inputs →
+                </button>
+              )}
+              {state?.hasAgentReport && (
+                <button className="btn btn--secondary" onClick={() => navigate('/agent-usage')}>
+                  View Agent Usage →
                 </button>
               )}
             </div>
