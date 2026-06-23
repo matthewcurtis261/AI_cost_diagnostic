@@ -116,6 +116,8 @@ export interface TelemetryEventWithInput {
     input_tokens: number;
     output_tokens: number;
     total_tokens?: number;
+    cache_creation_tokens?: number;
+    cache_read_tokens?: number;
     source?: string;
   };
   latency_ms?: number;

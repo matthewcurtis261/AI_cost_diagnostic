@@ -158,7 +158,8 @@ function existingStatus(filePath: string): JobStatus {
 
 const { expiresAt: _initExpires, removeAt: _initRemove } = restoreScheduledState()
 
-const agentReportPath = path.join(workDir, 'agent-report.json')
+const agentReportPath     = path.join(workDir, 'agent-report.json')
+const agentDeepReportPath = path.join(workDir, 'agent-deep-report.json')
 
 const state = {
   repoPath: null as string | null,
@@ -177,6 +178,8 @@ const state = {
   lastPreset: 'balanced',
   agentScanStatus: existingStatus(agentReportPath),
   agentScanError: null as string | null,
+  agentDeepScanStatus: existingStatus(agentDeepReportPath),
+  agentDeepScanError: null as string | null,
 }
 
 // Run due jobs on startup and every 30 seconds
@@ -208,7 +211,8 @@ app.get('/api/state', (_req, res) => {
     hasEstimate:     fs.existsSync(path.join(workDir, 'spend-estimate.json')),
     hasAnalysis:     fs.existsSync(path.join(workDir, 'input-analysis.json')),
     hasEvents:       fs.existsSync(eventsPath),
-    hasAgentReport:  fs.existsSync(agentReportPath),
+    hasAgentReport:      fs.existsSync(agentReportPath),
+    hasAgentDeepReport:  fs.existsSync(agentDeepReportPath),
   })
 })
 
@@ -254,6 +258,46 @@ app.post('/api/agent-scan', (_req, res) => {
 app.get('/api/agent-report', (_req, res) => {
   if (!fs.existsSync(agentReportPath)) { res.status(404).json({ error: 'No agent report yet' }); return }
   res.json(JSON.parse(fs.readFileSync(agentReportPath, 'utf-8')))
+})
+
+// ── Agent deep scan ───────────────────────────────────────────────────────────
+
+function runAgentDeepScanJob(): void {
+  if (state.agentDeepScanStatus === 'running') return
+  state.agentDeepScanStatus = 'running'
+  state.agentDeepScanError = null
+  broadcastStatus('agentDeepScan', 'running')
+
+  const child = spawn(tsxBin, ['cli/agent-scan-deep.ts', '--output', agentDeepReportPath], { cwd: rootDir })
+
+  child.stdout.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(`[agent-deep] ${line.trim()}`) })
+  })
+  child.stderr.on('data', (data: Buffer) => {
+    data.toString().split('\n').forEach(line => { if (line.trim()) broadcastLog(`[agent-deep] ${line.trim()}`) })
+  })
+  child.on('close', (code: number | null) => {
+    if (code === 0) {
+      state.agentDeepScanStatus = 'done'
+      broadcastLog('[agent-deep] ✓ Deep scan complete')
+    } else {
+      state.agentDeepScanStatus = 'error'
+      state.agentDeepScanError = `Deep scan exited with code ${code}`
+    }
+    broadcastStatus('agentDeepScan', state.agentDeepScanStatus, state.agentDeepScanError ?? undefined)
+  })
+}
+
+// POST /api/agent-scan-deep
+app.post('/api/agent-scan-deep', (_req, res) => {
+  runAgentDeepScanJob()
+  res.json({ started: true })
+})
+
+// GET /api/agent-deep-report
+app.get('/api/agent-deep-report', (_req, res) => {
+  if (!fs.existsSync(agentDeepReportPath)) { res.status(404).json({ error: 'No deep report yet' }); return }
+  res.json(JSON.parse(fs.readFileSync(agentDeepReportPath, 'utf-8')))
 })
 
 function runDiagnosisJob(errorOutput: string): void {

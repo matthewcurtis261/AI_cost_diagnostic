@@ -6,7 +6,7 @@ import {
   supportsCallType,
 } from '../../estimate/lib/pricing.js';
 import type { QualityScoresDocument } from './types.js';
-import { resolveQualityModelId, weightedQualityScore } from './quality-scores.js';
+import { resolveQualityModelId, taskQualityScore } from './quality-scores.js';
 
 export interface ResolvedQualityPreferences {
   preset: string;
@@ -61,7 +61,11 @@ export function resolveModelQualityKey(
   return resolveQualityModelId(pricingModelId, aliases, scores);
 }
 
-export function blendedQualityForModel(
+/**
+ * Returns the quality score for a model scoped to the active task metrics.
+ * Single metric → direct lookup; multiple → weighted blend of those metrics only.
+ */
+export function taskQualityForModel(
   pricingModelId: string,
   metricWeights: Record<string, number>,
   pricing: PricingTable,
@@ -70,7 +74,17 @@ export function blendedQualityForModel(
   const modelPricing = getModelPricing(pricing, pricingModelId);
   const qualityKey = resolveModelQualityKey(pricingModelId, modelPricing, ctx.aliases, ctx.scores);
   if (!qualityKey) return null;
-  return weightedQualityScore(qualityKey, metricWeights, ctx.scores);
+  return taskQualityScore(qualityKey, metricWeights, ctx.scores);
+}
+
+/** @deprecated Use taskQualityForModel */
+export function blendedQualityForModel(
+  pricingModelId: string,
+  metricWeights: Record<string, number>,
+  pricing: PricingTable,
+  ctx: Pick<QualityEvalContext, 'scores' | 'aliases'>,
+): number | null {
+  return taskQualityForModel(pricingModelId, metricWeights, pricing, ctx);
 }
 
 export function evaluateAlternative(
@@ -79,6 +93,8 @@ export function evaluateAlternative(
   callType: string,
   inputTokens: number,
   outputTokens: number,
+  cacheCreationTokens: number,
+  cacheReadTokens: number,
   currentQuality: number | null,
   bestQuality: number | null,
   pricing: PricingTable,
@@ -90,15 +106,15 @@ export function evaluateAlternative(
   }
 
   const currentPricing = getModelPricing(pricing, currentModel);
-  const currentCost = calculateCost(inputTokens, outputTokens, currentPricing);
-  const altCost = calculateCost(inputTokens, outputTokens, altPricing);
+  const currentCost = calculateCost(inputTokens, outputTokens, currentPricing, cacheCreationTokens, cacheReadTokens);
+  const altCost = calculateCost(inputTokens, outputTokens, altPricing, cacheCreationTokens, cacheReadTokens);
   const savingsUsd = roundUsd(currentCost.total_usd - altCost.total_usd);
   const savingsPercent =
     currentCost.total_usd > 0 ? roundUsd((savingsUsd / currentCost.total_usd) * 100) : 0;
 
   if (savingsUsd <= 0) return null;
 
-  const altQuality = blendedQualityForModel(alternativeModel, ctx.metricWeights, pricing, ctx);
+  const altQuality = taskQualityForModel(alternativeModel, ctx.metricWeights, pricing, ctx);
   const qualityFloor =
     bestQuality != null ? roundUsd(bestQuality * ctx.preferences.quality_floor_pct) : null;
 
@@ -142,12 +158,14 @@ export function pickBestAlternative(
   callType: string,
   inputTokens: number,
   outputTokens: number,
+  cacheCreationTokens: number,
+  cacheReadTokens: number,
   pricing: PricingTable,
   ctx: QualityEvalContext,
   explicitAlternatives?: string[],
 ): AlternativeEvaluation | null {
   const candidates = resolveAlternatives(callType, currentModel, pricing, explicitAlternatives);
-  const currentQuality = blendedQualityForModel(currentModel, ctx.metricWeights, pricing, ctx);
+  const currentQuality = taskQualityForModel(currentModel, ctx.metricWeights, pricing, ctx);
 
   const qualityByModel = new Map<string, number | null>();
   qualityByModel.set(currentModel, currentQuality);
@@ -170,6 +188,8 @@ export function pickBestAlternative(
       callType,
       inputTokens,
       outputTokens,
+      cacheCreationTokens,
+      cacheReadTokens,
       currentQuality,
       bestQuality,
       pricing,

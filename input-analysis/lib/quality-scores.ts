@@ -67,7 +67,13 @@ export function resolveQualityModelId(
   return undefined;
 }
 
-export function weightedQualityScore(
+/**
+ * Returns the quality score for a model scoped to the active task metrics.
+ * - Single active metric → direct lookup of that metric's score.
+ * - Multiple active metrics → weighted blend of only those metrics (proportional to classifier scores).
+ * - No active metrics → null.
+ */
+export function taskQualityScore(
   modelKey: string,
   metricWeights: Record<string, number>,
   scores: QualityScoresDocument,
@@ -75,17 +81,32 @@ export function weightedQualityScore(
   const entry = scores.models[modelKey];
   if (!entry) return null;
 
+  const activeEntries = Object.entries(metricWeights).filter(([, w]) => w > 0);
+
+  // Single metric: direct lookup, no blending
+  if (activeEntries.length === 1) {
+    const value = entry.scores[activeEntries[0][0]];
+    return value ?? null;
+  }
+
+  // Multiple metrics: weighted blend of active metrics only
   let totalWeight = 0;
   let totalScore = 0;
-
-  for (const [metricId, weight] of Object.entries(metricWeights)) {
-    if (weight <= 0) continue;
+  for (const [metricId, weight] of activeEntries) {
     const value = entry.scores[metricId];
     if (value == null) continue;
     totalWeight += weight;
     totalScore += weight * value;
   }
 
-  if (totalWeight === 0) return null;
-  return totalScore / totalWeight;
+  return totalWeight === 0 ? null : totalScore / totalWeight;
+}
+
+/** @deprecated Use taskQualityScore — blends only active task metrics, not all metrics. */
+export function weightedQualityScore(
+  modelKey: string,
+  metricWeights: Record<string, number>,
+  scores: QualityScoresDocument,
+): number | null {
+  return taskQualityScore(modelKey, metricWeights, scores);
 }

@@ -101,18 +101,26 @@ export function calculateCost(
   inputTokens: number,
   outputTokens: number,
   modelPricing: ModelPricing | undefined,
+  cacheCreationTokens = 0,
+  cacheReadTokens = 0,
 ): CostBreakdown {
   if (!modelPricing) {
-    return { input_usd: 0, output_usd: 0, total_usd: 0 };
+    return { input_usd: 0, output_usd: 0, cache_creation_usd: 0, cache_read_usd: 0, total_usd: 0 };
   }
 
   const input_usd = (inputTokens / 1_000_000) * modelPricing.input_per_million;
   const output_usd = (outputTokens / 1_000_000) * modelPricing.output_per_million;
-  const total_usd = roundUsd(input_usd + output_usd);
+  const cacheCreateRate = modelPricing.cache_creation_per_million ?? modelPricing.input_per_million;
+  const cacheReadRate = modelPricing.cache_read_per_million ?? modelPricing.input_per_million;
+  const cache_creation_usd = (cacheCreationTokens / 1_000_000) * cacheCreateRate;
+  const cache_read_usd = (cacheReadTokens / 1_000_000) * cacheReadRate;
+  const total_usd = roundUsd(input_usd + output_usd + cache_creation_usd + cache_read_usd);
 
   return {
     input_usd: roundUsd(input_usd),
     output_usd: roundUsd(output_usd),
+    cache_creation_usd: roundUsd(cache_creation_usd),
+    cache_read_usd: roundUsd(cache_read_usd),
     total_usd,
   };
 }

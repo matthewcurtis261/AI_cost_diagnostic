@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1.0",
-  "generated_at": "2026-06-18T00:00:00+00:00",
+  "generated_at": "2026-06-23T00:00:00+00:00",
   "sources": [
     {
       "id": "open-llm-leaderboard-v2-seed",
@@ -10,30 +10,189 @@
     }
   ],
   "metrics": [
-    { "id": "mcq_knowledge", "label": "General knowledge (MCQ)", "benchmarks": ["MMLU", "MMLU-Pro"], "score_kind": "accuracy" },
-    { "id": "expert_science", "label": "Expert science reasoning", "benchmarks": ["GPQA Diamond", "HLE"], "score_kind": "accuracy" },
-    { "id": "math", "label": "Mathematical reasoning", "benchmarks": ["GSM8K", "MATH-500", "AIME"], "score_kind": "accuracy" },
-    { "id": "multi_step_reasoning", "label": "Multi-step reasoning", "benchmarks": ["BBH", "MuSR"], "score_kind": "accuracy" },
-    { "id": "code_completion", "label": "Function-level coding", "benchmarks": ["HumanEval", "MBPP", "LiveCodeBench"], "score_kind": "pass_at_k" },
-    { "id": "repo_engineering", "label": "Repo-level software engineering", "benchmarks": ["SWE-bench Verified"], "score_kind": "resolve_rate" },
-    { "id": "tool_call", "label": "Tool / function calling", "benchmarks": ["BFCL v4"], "score_kind": "ast_match" },
-    { "id": "instruction_following", "label": "Verifiable instruction following", "benchmarks": ["IFEval"], "score_kind": "strict_pass" },
-    { "id": "writing", "label": "Writing / creative generation", "benchmarks": ["MT-Bench writing", "Arena Writing"], "score_kind": "arena_elo" },
-    { "id": "roleplay", "label": "Roleplay / persona", "benchmarks": ["MT-Bench roleplay"], "score_kind": "arena_elo" },
-    { "id": "extraction", "label": "Structured extraction", "benchmarks": ["MT-Bench extraction"], "score_kind": "judge_score" },
-    { "id": "reasoning_chat", "label": "Conversational reasoning", "benchmarks": ["MT-Bench reasoning", "Arena Hard Prompts"], "score_kind": "arena_elo" },
-    { "id": "coding_chat", "label": "Conversational coding", "benchmarks": ["MT-Bench coding", "Arena Coding"], "score_kind": "arena_elo" },
-    { "id": "stem_chat", "label": "Conversational STEM knowledge", "benchmarks": ["MT-Bench STEM", "Arena Math"], "score_kind": "arena_elo" },
-    { "id": "humanities_chat", "label": "Conversational humanities", "benchmarks": ["MT-Bench humanities"], "score_kind": "judge_score" },
-    { "id": "factuality", "label": "Factuality / truthfulness", "benchmarks": ["TruthfulQA", "SimpleQA"], "score_kind": "accuracy" },
-    { "id": "long_context_retrieval", "label": "Long-context retrieval", "benchmarks": ["NIAH", "RULER"], "score_kind": "recall" },
-    { "id": "rag_synthesis", "label": "RAG long-form synthesis", "benchmarks": ["LONG2RAG"], "score_kind": "key_point_recall" },
-    { "id": "agentic", "label": "Agentic multi-step tasks", "benchmarks": ["AgentBench", "Terminal-Bench"], "score_kind": "task_success" },
-    { "id": "commonsense", "label": "Commonsense understanding", "benchmarks": ["HellaSwag", "WinoGrande"], "score_kind": "accuracy" }
+    {
+      "id": "mcq_knowledge",
+      "label": "General knowledge (MCQ)",
+      "benchmarks": [
+        "MMLU",
+        "MMLU-Pro"
+      ],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "expert_science",
+      "label": "Expert science reasoning",
+      "benchmarks": [
+        "GPQA Diamond",
+        "HLE"
+      ],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "math",
+      "label": "Mathematical reasoning",
+      "benchmarks": [
+        "GSM8K",
+        "MATH-500",
+        "AIME"
+      ],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "multi_step_reasoning",
+      "label": "Multi-step reasoning",
+      "benchmarks": [
+        "BBH",
+        "MuSR"
+      ],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "code_completion",
+      "label": "Function-level coding",
+      "benchmarks": [
+        "HumanEval",
+        "MBPP",
+        "LiveCodeBench"
+      ],
+      "score_kind": "pass_at_k"
+    },
+    {
+      "id": "repo_engineering",
+      "label": "Repo-level software engineering",
+      "benchmarks": [
+        "SWE-bench Verified"
+      ],
+      "score_kind": "resolve_rate"
+    },
+    {
+      "id": "tool_call",
+      "label": "Tool / function calling",
+      "benchmarks": [
+        "BFCL v4"
+      ],
+      "score_kind": "ast_match"
+    },
+    {
+      "id": "instruction_following",
+      "label": "Verifiable instruction following",
+      "benchmarks": [
+        "IFEval"
+      ],
+      "score_kind": "strict_pass"
+    },
+    {
+      "id": "writing",
+      "label": "Writing / creative generation",
+      "benchmarks": [
+        "MT-Bench writing",
+        "Arena Writing"
+      ],
+      "score_kind": "arena_elo"
+    },
+    {
+      "id": "roleplay",
+      "label": "Roleplay / persona",
+      "benchmarks": [
+        "MT-Bench roleplay"
+      ],
+      "score_kind": "arena_elo"
+    },
+    {
+      "id": "extraction",
+      "label": "Structured extraction",
+      "benchmarks": [
+        "MT-Bench extraction"
+      ],
+      "score_kind": "judge_score"
+    },
+    {
+      "id": "reasoning_chat",
+      "label": "Conversational reasoning",
+      "benchmarks": [
+        "MT-Bench reasoning",
+        "Arena Hard Prompts"
+      ],
+      "score_kind": "arena_elo"
+    },
+    {
+      "id": "coding_chat",
+      "label": "Conversational coding",
+      "benchmarks": [
+        "MT-Bench coding",
+        "Arena Coding"
+      ],
+      "score_kind": "arena_elo"
+    },
+    {
+      "id": "stem_chat",
+      "label": "Conversational STEM knowledge",
+      "benchmarks": [
+        "MT-Bench STEM",
+        "Arena Math"
+      ],
+      "score_kind": "arena_elo"
+    },
+    {
+      "id": "humanities_chat",
+      "label": "Conversational humanities",
+      "benchmarks": [
+        "MT-Bench humanities"
+      ],
+      "score_kind": "judge_score"
+    },
+    {
+      "id": "factuality",
+      "label": "Factuality / truthfulness",
+      "benchmarks": [
+        "TruthfulQA",
+        "SimpleQA"
+      ],
+      "score_kind": "accuracy"
+    },
+    {
+      "id": "long_context_retrieval",
+      "label": "Long-context retrieval",
+      "benchmarks": [
+        "NIAH",
+        "RULER"
+      ],
+      "score_kind": "recall"
+    },
+    {
+      "id": "rag_synthesis",
+      "label": "RAG long-form synthesis",
+      "benchmarks": [
+        "LONG2RAG"
+      ],
+      "score_kind": "key_point_recall"
+    },
+    {
+      "id": "agentic",
+      "label": "Agentic multi-step tasks",
+      "benchmarks": [
+        "AgentBench",
+        "Terminal-Bench"
+      ],
+      "score_kind": "task_success"
+    },
+    {
+      "id": "commonsense",
+      "label": "Commonsense understanding",
+      "benchmarks": [
+        "HellaSwag",
+        "WinoGrande"
+      ],
+      "score_kind": "accuracy"
+    }
   ],
   "normalization": {
     "accuracy_scale": "0-1",
-    "arena_elo": { "min": 1000, "max": 1600, "per_category": true }
+    "arena_elo": {
+      "min": 1000,
+      "max": 1600,
+      "per_category": true
+    }
   },
   "models": {
     "openai/gpt-4o-2024-11-20": {
@@ -41,16 +200,35 @@
       "oll_id": "openai/gpt-4o-2024-11-20",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.887, "expert_science": 0.531, "math": 0.762, "multi_step_reasoning": 0.83,
-        "code_completion": 0.92, "repo_engineering": 0.33, "tool_call": 0.88, "instruction_following": 0.875,
-        "writing": 0.94, "roleplay": 0.91, "extraction": 0.89, "reasoning_chat": 0.93, "coding_chat": 0.95,
-        "stem_chat": 0.90, "humanities_chat": 0.88, "factuality": 0.72, "long_context_retrieval": 0.85,
-        "rag_synthesis": 0.82, "agentic": 0.45, "commonsense": 0.91
+        "mcq_knowledge": 0.887,
+        "expert_science": 0.531,
+        "math": 0.762,
+        "multi_step_reasoning": 0.83,
+        "code_completion": 0.92,
+        "repo_engineering": 0.33,
+        "tool_call": 0.88,
+        "instruction_following": 0.875,
+        "writing": 0.94,
+        "roleplay": 0.91,
+        "extraction": 0.89,
+        "reasoning_chat": 0.93,
+        "coding_chat": 0.95,
+        "stem_chat": 0.9,
+        "humanities_chat": 0.88,
+        "factuality": 0.72,
+        "long_context_retrieval": 0.85,
+        "rag_synthesis": 0.82,
+        "agentic": 0.45,
+        "commonsense": 0.91
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "expert_science": "oll:GPQA Raw", "math": "oll:MATH Lvl 5 Raw",
-        "multi_step_reasoning": "oll:BBH Raw", "instruction_following": "oll:IFEval Raw",
-        "code_completion": "manual_seed_v0.1.0", "writing": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "expert_science": "oll:GPQA Raw",
+        "math": "oll:MATH Lvl 5 Raw",
+        "multi_step_reasoning": "oll:BBH Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0",
+        "writing": "manual_seed_v0.1.0"
       }
     },
     "openai/gpt-4o-mini-2024-07-18": {
@@ -58,15 +236,33 @@
       "oll_id": "openai/gpt-4o-mini-2024-07-18",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.823, "expert_science": 0.417, "math": 0.684, "multi_step_reasoning": 0.721,
-        "code_completion": 0.87, "repo_engineering": 0.18, "tool_call": 0.82, "instruction_following": 0.858,
-        "writing": 0.82, "roleplay": 0.80, "extraction": 0.84, "reasoning_chat": 0.81, "coding_chat": 0.83,
-        "stem_chat": 0.78, "humanities_chat": 0.79, "factuality": 0.65, "long_context_retrieval": 0.70,
-        "rag_synthesis": 0.68, "agentic": 0.22, "commonsense": 0.84
+        "mcq_knowledge": 0.823,
+        "expert_science": 0.417,
+        "math": 0.684,
+        "multi_step_reasoning": 0.721,
+        "code_completion": 0.87,
+        "repo_engineering": 0.18,
+        "tool_call": 0.82,
+        "instruction_following": 0.858,
+        "writing": 0.82,
+        "roleplay": 0.8,
+        "extraction": 0.84,
+        "reasoning_chat": 0.81,
+        "coding_chat": 0.83,
+        "stem_chat": 0.78,
+        "humanities_chat": 0.79,
+        "factuality": 0.65,
+        "long_context_retrieval": 0.7,
+        "rag_synthesis": 0.68,
+        "agentic": 0.22,
+        "commonsense": 0.84
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "expert_science": "oll:GPQA Raw", "math": "oll:MATH Lvl 5 Raw",
-        "multi_step_reasoning": "oll:BBH Raw", "instruction_following": "oll:IFEval Raw"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "expert_science": "oll:GPQA Raw",
+        "math": "oll:MATH Lvl 5 Raw",
+        "multi_step_reasoning": "oll:BBH Raw",
+        "instruction_following": "oll:IFEval Raw"
       }
     },
     "openai/gpt-4.1-2025-04-14": {
@@ -74,106 +270,251 @@
       "oll_id": "openai/gpt-4.1-2025-04-14",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.902, "expert_science": 0.558, "math": 0.801, "multi_step_reasoning": 0.845,
-        "code_completion": 0.93, "repo_engineering": 0.38, "tool_call": 0.90, "instruction_following": 0.892,
-        "writing": 0.95, "roleplay": 0.92, "extraction": 0.90, "reasoning_chat": 0.94, "coding_chat": 0.96,
-        "stem_chat": 0.91, "humanities_chat": 0.89, "factuality": 0.74, "long_context_retrieval": 0.88,
-        "rag_synthesis": 0.84, "agentic": 0.48, "commonsense": 0.92
+        "mcq_knowledge": 0.902,
+        "expert_science": 0.558,
+        "math": 0.801,
+        "multi_step_reasoning": 0.845,
+        "code_completion": 0.93,
+        "repo_engineering": 0.38,
+        "tool_call": 0.9,
+        "instruction_following": 0.892,
+        "writing": 0.95,
+        "roleplay": 0.92,
+        "extraction": 0.9,
+        "reasoning_chat": 0.94,
+        "coding_chat": 0.96,
+        "stem_chat": 0.91,
+        "humanities_chat": 0.89,
+        "factuality": 0.74,
+        "long_context_retrieval": 0.88,
+        "rag_synthesis": 0.84,
+        "agentic": 0.48,
+        "commonsense": 0.92
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
     },
     "openai/gpt-4.1-mini-2025-04-14": {
       "display_name": "GPT-4.1-mini-2025-04-14",
       "oll_id": "openai/gpt-4.1-mini-2025-04-14",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.851, "expert_science": 0.462, "math": 0.735, "multi_step_reasoning": 0.768,
-        "code_completion": 0.88, "repo_engineering": 0.22, "tool_call": 0.84, "instruction_following": 0.871,
-        "writing": 0.85, "roleplay": 0.83, "extraction": 0.86, "reasoning_chat": 0.84, "coding_chat": 0.86,
-        "stem_chat": 0.82, "humanities_chat": 0.81, "factuality": 0.68, "long_context_retrieval": 0.75,
-        "rag_synthesis": 0.72, "agentic": 0.25, "commonsense": 0.86
+        "mcq_knowledge": 0.851,
+        "expert_science": 0.462,
+        "math": 0.735,
+        "multi_step_reasoning": 0.768,
+        "code_completion": 0.88,
+        "repo_engineering": 0.22,
+        "tool_call": 0.84,
+        "instruction_following": 0.871,
+        "writing": 0.85,
+        "roleplay": 0.83,
+        "extraction": 0.86,
+        "reasoning_chat": 0.84,
+        "coding_chat": 0.86,
+        "stem_chat": 0.82,
+        "humanities_chat": 0.81,
+        "factuality": 0.68,
+        "long_context_retrieval": 0.75,
+        "rag_synthesis": 0.72,
+        "agentic": 0.25,
+        "commonsense": 0.86
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
     },
     "openai/gpt-4.1-nano-2025-04-14": {
       "display_name": "GPT-4.1-nano-2025-04-14",
       "oll_id": "openai/gpt-4.1-nano-2025-04-14",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.782, "expert_science": 0.385, "math": 0.652, "multi_step_reasoning": 0.698,
-        "code_completion": 0.80, "repo_engineering": 0.12, "tool_call": 0.76, "instruction_following": 0.832,
-        "writing": 0.76, "roleplay": 0.74, "extraction": 0.78, "reasoning_chat": 0.75, "coding_chat": 0.77,
-        "stem_chat": 0.72, "humanities_chat": 0.73, "factuality": 0.60, "long_context_retrieval": 0.65,
-        "rag_synthesis": 0.62, "agentic": 0.15, "commonsense": 0.80
+        "mcq_knowledge": 0.782,
+        "expert_science": 0.385,
+        "math": 0.652,
+        "multi_step_reasoning": 0.698,
+        "code_completion": 0.8,
+        "repo_engineering": 0.12,
+        "tool_call": 0.76,
+        "instruction_following": 0.832,
+        "writing": 0.76,
+        "roleplay": 0.74,
+        "extraction": 0.78,
+        "reasoning_chat": 0.75,
+        "coding_chat": 0.77,
+        "stem_chat": 0.72,
+        "humanities_chat": 0.73,
+        "factuality": 0.6,
+        "long_context_retrieval": 0.65,
+        "rag_synthesis": 0.62,
+        "agentic": 0.15,
+        "commonsense": 0.8
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
     },
     "anthropic/claude-3.5-sonnet-20241022": {
       "display_name": "Claude 3.5 Sonnet (20241022)",
       "oll_id": "anthropic/claude-3.5-sonnet-20241022",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.881, "expert_science": 0.548, "math": 0.748, "multi_step_reasoning": 0.822,
-        "code_completion": 0.91, "repo_engineering": 0.35, "tool_call": 0.87, "instruction_following": 0.868,
-        "writing": 0.96, "roleplay": 0.93, "extraction": 0.91, "reasoning_chat": 0.92, "coding_chat": 0.94,
-        "stem_chat": 0.88, "humanities_chat": 0.90, "factuality": 0.70, "long_context_retrieval": 0.82,
-        "rag_synthesis": 0.80, "agentic": 0.40, "commonsense": 0.90
+        "mcq_knowledge": 0.881,
+        "expert_science": 0.548,
+        "math": 0.748,
+        "multi_step_reasoning": 0.822,
+        "code_completion": 0.91,
+        "repo_engineering": 0.35,
+        "tool_call": 0.87,
+        "instruction_following": 0.868,
+        "writing": 0.96,
+        "roleplay": 0.93,
+        "extraction": 0.91,
+        "reasoning_chat": 0.92,
+        "coding_chat": 0.94,
+        "stem_chat": 0.88,
+        "humanities_chat": 0.9,
+        "factuality": 0.7,
+        "long_context_retrieval": 0.82,
+        "rag_synthesis": 0.8,
+        "agentic": 0.4,
+        "commonsense": 0.9
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
     },
     "anthropic/claude-3.5-haiku-20241022": {
       "display_name": "Claude 3.5 Haiku (20241022)",
       "oll_id": "anthropic/claude-3.5-haiku-20241022",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.812, "expert_science": 0.428, "math": 0.672, "multi_step_reasoning": 0.735,
-        "code_completion": 0.84, "repo_engineering": 0.20, "tool_call": 0.80, "instruction_following": 0.845,
-        "writing": 0.83, "roleplay": 0.81, "extraction": 0.85, "reasoning_chat": 0.82, "coding_chat": 0.84,
-        "stem_chat": 0.79, "humanities_chat": 0.80, "factuality": 0.64, "long_context_retrieval": 0.72,
-        "rag_synthesis": 0.70, "agentic": 0.20, "commonsense": 0.83
+        "mcq_knowledge": 0.812,
+        "expert_science": 0.428,
+        "math": 0.672,
+        "multi_step_reasoning": 0.735,
+        "code_completion": 0.84,
+        "repo_engineering": 0.2,
+        "tool_call": 0.8,
+        "instruction_following": 0.845,
+        "writing": 0.83,
+        "roleplay": 0.81,
+        "extraction": 0.85,
+        "reasoning_chat": 0.82,
+        "coding_chat": 0.84,
+        "stem_chat": 0.79,
+        "humanities_chat": 0.8,
+        "factuality": 0.64,
+        "long_context_retrieval": 0.72,
+        "rag_synthesis": 0.7,
+        "agentic": 0.2,
+        "commonsense": 0.83
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
     },
     "google/gemini-2.0-flash-001": {
       "display_name": "Gemini 2.0 Flash",
       "oll_id": "google/gemini-2.0-flash-001",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.842, "expert_science": 0.478, "math": 0.712, "multi_step_reasoning": 0.758,
-        "code_completion": 0.86, "repo_engineering": 0.24, "tool_call": 0.83, "instruction_following": 0.862,
-        "writing": 0.86, "roleplay": 0.84, "extraction": 0.87, "reasoning_chat": 0.85, "coding_chat": 0.87,
-        "stem_chat": 0.83, "humanities_chat": 0.82, "factuality": 0.66, "long_context_retrieval": 0.78,
-        "rag_synthesis": 0.74, "agentic": 0.28, "commonsense": 0.85
+        "mcq_knowledge": 0.842,
+        "expert_science": 0.478,
+        "math": 0.712,
+        "multi_step_reasoning": 0.758,
+        "code_completion": 0.86,
+        "repo_engineering": 0.24,
+        "tool_call": 0.83,
+        "instruction_following": 0.862,
+        "writing": 0.86,
+        "roleplay": 0.84,
+        "extraction": 0.87,
+        "reasoning_chat": 0.85,
+        "coding_chat": 0.87,
+        "stem_chat": 0.83,
+        "humanities_chat": 0.82,
+        "factuality": 0.66,
+        "long_context_retrieval": 0.78,
+        "rag_synthesis": 0.74,
+        "agentic": 0.28,
+        "commonsense": 0.85
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
     },
     "google/gemini-2.5-pro-preview-03-25": {
       "display_name": "Gemini 2.5 Pro",
       "oll_id": "google/gemini-2.5-pro-preview-03-25",
       "type": "proprietary",
       "scores": {
-        "mcq_knowledge": 0.908, "expert_science": 0.572, "math": 0.828, "multi_step_reasoning": 0.852,
-        "code_completion": 0.94, "repo_engineering": 0.40, "tool_call": 0.91, "instruction_following": 0.898,
-        "writing": 0.95, "roleplay": 0.93, "extraction": 0.91, "reasoning_chat": 0.94, "coding_chat": 0.95,
-        "stem_chat": 0.92, "humanities_chat": 0.90, "factuality": 0.75, "long_context_retrieval": 0.90,
-        "rag_synthesis": 0.86, "agentic": 0.50, "commonsense": 0.93
+        "mcq_knowledge": 0.908,
+        "expert_science": 0.572,
+        "math": 0.828,
+        "multi_step_reasoning": 0.852,
+        "code_completion": 0.94,
+        "repo_engineering": 0.4,
+        "tool_call": 0.91,
+        "instruction_following": 0.898,
+        "writing": 0.95,
+        "roleplay": 0.93,
+        "extraction": 0.91,
+        "reasoning_chat": 0.94,
+        "coding_chat": 0.95,
+        "stem_chat": 0.92,
+        "humanities_chat": 0.9,
+        "factuality": 0.75,
+        "long_context_retrieval": 0.9,
+        "rag_synthesis": 0.86,
+        "agentic": 0.5,
+        "commonsense": 0.93
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
     },
     "deepseek-ai/DeepSeek-V3": {
       "display_name": "DeepSeek-V3",
       "oll_id": "deepseek-ai/DeepSeek-V3",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.852, "expert_science": 0.593, "math": 0.815, "multi_step_reasoning": 0.781,
-        "code_completion": 0.90, "repo_engineering": 0.42, "tool_call": 0.85, "instruction_following": 0.881,
-        "writing": 0.88, "roleplay": 0.86, "extraction": 0.87, "reasoning_chat": 0.89, "coding_chat": 0.91,
-        "stem_chat": 0.88, "humanities_chat": 0.85, "factuality": 0.68, "long_context_retrieval": 0.80,
-        "rag_synthesis": 0.78, "agentic": 0.38, "commonsense": 0.87
+        "mcq_knowledge": 0.852,
+        "expert_science": 0.593,
+        "math": 0.815,
+        "multi_step_reasoning": 0.781,
+        "code_completion": 0.9,
+        "repo_engineering": 0.42,
+        "tool_call": 0.85,
+        "instruction_following": 0.881,
+        "writing": 0.88,
+        "roleplay": 0.86,
+        "extraction": 0.87,
+        "reasoning_chat": 0.89,
+        "coding_chat": 0.91,
+        "stem_chat": 0.88,
+        "humanities_chat": 0.85,
+        "factuality": 0.68,
+        "long_context_retrieval": 0.8,
+        "rag_synthesis": 0.78,
+        "agentic": 0.38,
+        "commonsense": 0.87
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "expert_science": "oll:GPQA Raw", "math": "oll:MATH Lvl 5 Raw",
-        "multi_step_reasoning": "oll:BBH Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "expert_science": "oll:GPQA Raw",
+        "math": "oll:MATH Lvl 5 Raw",
+        "multi_step_reasoning": "oll:BBH Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "deepseek-ai/DeepSeek-R1": {
@@ -181,14 +522,31 @@
       "oll_id": "deepseek-ai/DeepSeek-R1",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.868, "expert_science": 0.612, "math": 0.902, "multi_step_reasoning": 0.812,
-        "code_completion": 0.88, "repo_engineering": 0.35, "tool_call": 0.82, "instruction_following": 0.852,
-        "writing": 0.84, "roleplay": 0.82, "extraction": 0.83, "reasoning_chat": 0.92, "coding_chat": 0.88,
-        "stem_chat": 0.91, "humanities_chat": 0.80, "factuality": 0.66, "long_context_retrieval": 0.76,
-        "rag_synthesis": 0.74, "agentic": 0.32, "commonsense": 0.85
+        "mcq_knowledge": 0.868,
+        "expert_science": 0.612,
+        "math": 0.902,
+        "multi_step_reasoning": 0.812,
+        "code_completion": 0.88,
+        "repo_engineering": 0.35,
+        "tool_call": 0.82,
+        "instruction_following": 0.852,
+        "writing": 0.84,
+        "roleplay": 0.82,
+        "extraction": 0.83,
+        "reasoning_chat": 0.92,
+        "coding_chat": 0.88,
+        "stem_chat": 0.91,
+        "humanities_chat": 0.8,
+        "factuality": 0.66,
+        "long_context_retrieval": 0.76,
+        "rag_synthesis": 0.74,
+        "agentic": 0.32,
+        "commonsense": 0.85
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "math": "oll:MATH Lvl 5 Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "math": "oll:MATH Lvl 5 Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "meta-llama/Llama-3.1-8B-Instruct": {
@@ -196,15 +554,34 @@
       "oll_id": "meta-llama/Llama-3.1-8B-Instruct",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.482, "expert_science": 0.323, "math": 0.382, "multi_step_reasoning": 0.451,
-        "code_completion": 0.72, "repo_engineering": 0.08, "tool_call": 0.65, "instruction_following": 0.781,
-        "writing": 0.68, "roleplay": 0.70, "extraction": 0.72, "reasoning_chat": 0.62, "coding_chat": 0.70,
-        "stem_chat": 0.58, "humanities_chat": 0.65, "factuality": 0.52, "long_context_retrieval": 0.55,
-        "rag_synthesis": 0.50, "agentic": 0.10, "commonsense": 0.79
+        "mcq_knowledge": 0.482,
+        "expert_science": 0.323,
+        "math": 0.382,
+        "multi_step_reasoning": 0.451,
+        "code_completion": 0.72,
+        "repo_engineering": 0.08,
+        "tool_call": 0.65,
+        "instruction_following": 0.781,
+        "writing": 0.68,
+        "roleplay": 0.7,
+        "extraction": 0.72,
+        "reasoning_chat": 0.62,
+        "coding_chat": 0.7,
+        "stem_chat": 0.58,
+        "humanities_chat": 0.65,
+        "factuality": 0.52,
+        "long_context_retrieval": 0.55,
+        "rag_synthesis": 0.5,
+        "agentic": 0.1,
+        "commonsense": 0.79
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "expert_science": "oll:GPQA Raw", "math": "oll:MATH Lvl 5 Raw",
-        "multi_step_reasoning": "oll:BBH Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "expert_science": "oll:GPQA Raw",
+        "math": "oll:MATH Lvl 5 Raw",
+        "multi_step_reasoning": "oll:BBH Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "meta-llama/Llama-3.1-70B-Instruct": {
@@ -212,14 +589,31 @@
       "oll_id": "meta-llama/Llama-3.1-70B-Instruct",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.682, "expert_science": 0.442, "math": 0.582, "multi_step_reasoning": 0.612,
-        "code_completion": 0.84, "repo_engineering": 0.18, "tool_call": 0.78, "instruction_following": 0.832,
-        "writing": 0.78, "roleplay": 0.76, "extraction": 0.80, "reasoning_chat": 0.74, "coding_chat": 0.82,
-        "stem_chat": 0.72, "humanities_chat": 0.74, "factuality": 0.58, "long_context_retrieval": 0.68,
-        "rag_synthesis": 0.64, "agentic": 0.18, "commonsense": 0.85
+        "mcq_knowledge": 0.682,
+        "expert_science": 0.442,
+        "math": 0.582,
+        "multi_step_reasoning": 0.612,
+        "code_completion": 0.84,
+        "repo_engineering": 0.18,
+        "tool_call": 0.78,
+        "instruction_following": 0.832,
+        "writing": 0.78,
+        "roleplay": 0.76,
+        "extraction": 0.8,
+        "reasoning_chat": 0.74,
+        "coding_chat": 0.82,
+        "stem_chat": 0.72,
+        "humanities_chat": 0.74,
+        "factuality": 0.58,
+        "long_context_retrieval": 0.68,
+        "rag_synthesis": 0.64,
+        "agentic": 0.18,
+        "commonsense": 0.85
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "meta-llama/Llama-3.3-70B-Instruct": {
@@ -227,14 +621,31 @@
       "oll_id": "meta-llama/Llama-3.3-70B-Instruct",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.712, "expert_science": 0.468, "math": 0.612, "multi_step_reasoning": 0.638,
-        "code_completion": 0.86, "repo_engineering": 0.20, "tool_call": 0.80, "instruction_following": 0.848,
-        "writing": 0.80, "roleplay": 0.78, "extraction": 0.82, "reasoning_chat": 0.76, "coding_chat": 0.84,
-        "stem_chat": 0.74, "humanities_chat": 0.76, "factuality": 0.60, "long_context_retrieval": 0.70,
-        "rag_synthesis": 0.66, "agentic": 0.20, "commonsense": 0.86
+        "mcq_knowledge": 0.712,
+        "expert_science": 0.468,
+        "math": 0.612,
+        "multi_step_reasoning": 0.638,
+        "code_completion": 0.86,
+        "repo_engineering": 0.2,
+        "tool_call": 0.8,
+        "instruction_following": 0.848,
+        "writing": 0.8,
+        "roleplay": 0.78,
+        "extraction": 0.82,
+        "reasoning_chat": 0.76,
+        "coding_chat": 0.84,
+        "stem_chat": 0.74,
+        "humanities_chat": 0.76,
+        "factuality": 0.6,
+        "long_context_retrieval": 0.7,
+        "rag_synthesis": 0.66,
+        "agentic": 0.2,
+        "commonsense": 0.86
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "Qwen/Qwen2.5-7B-Instruct": {
@@ -242,14 +653,31 @@
       "oll_id": "Qwen/Qwen2.5-7B-Instruct",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.552, "expert_science": 0.362, "math": 0.522, "multi_step_reasoning": 0.502,
-        "code_completion": 0.78, "repo_engineering": 0.10, "tool_call": 0.70, "instruction_following": 0.802,
-        "writing": 0.72, "roleplay": 0.71, "extraction": 0.74, "reasoning_chat": 0.66, "coding_chat": 0.75,
-        "stem_chat": 0.64, "humanities_chat": 0.68, "factuality": 0.54, "long_context_retrieval": 0.58,
-        "rag_synthesis": 0.54, "agentic": 0.12, "commonsense": 0.80
+        "mcq_knowledge": 0.552,
+        "expert_science": 0.362,
+        "math": 0.522,
+        "multi_step_reasoning": 0.502,
+        "code_completion": 0.78,
+        "repo_engineering": 0.1,
+        "tool_call": 0.7,
+        "instruction_following": 0.802,
+        "writing": 0.72,
+        "roleplay": 0.71,
+        "extraction": 0.74,
+        "reasoning_chat": 0.66,
+        "coding_chat": 0.75,
+        "stem_chat": 0.64,
+        "humanities_chat": 0.68,
+        "factuality": 0.54,
+        "long_context_retrieval": 0.58,
+        "rag_synthesis": 0.54,
+        "agentic": 0.12,
+        "commonsense": 0.8
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "Qwen/Qwen2.5-72B-Instruct": {
@@ -257,14 +685,31 @@
       "oll_id": "Qwen/Qwen2.5-72B-Instruct",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.752, "expert_science": 0.498, "math": 0.682, "multi_step_reasoning": 0.672,
-        "code_completion": 0.88, "repo_engineering": 0.22, "tool_call": 0.82, "instruction_following": 0.852,
-        "writing": 0.82, "roleplay": 0.80, "extraction": 0.84, "reasoning_chat": 0.78, "coding_chat": 0.86,
-        "stem_chat": 0.76, "humanities_chat": 0.78, "factuality": 0.62, "long_context_retrieval": 0.72,
-        "rag_synthesis": 0.68, "agentic": 0.22, "commonsense": 0.88
+        "mcq_knowledge": 0.752,
+        "expert_science": 0.498,
+        "math": 0.682,
+        "multi_step_reasoning": 0.672,
+        "code_completion": 0.88,
+        "repo_engineering": 0.22,
+        "tool_call": 0.82,
+        "instruction_following": 0.852,
+        "writing": 0.82,
+        "roleplay": 0.8,
+        "extraction": 0.84,
+        "reasoning_chat": 0.78,
+        "coding_chat": 0.86,
+        "stem_chat": 0.76,
+        "humanities_chat": 0.78,
+        "factuality": 0.62,
+        "long_context_retrieval": 0.72,
+        "rag_synthesis": 0.68,
+        "agentic": 0.22,
+        "commonsense": 0.88
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "mistralai/Mistral-Small-Instruct-2409": {
@@ -272,14 +717,31 @@
       "oll_id": "mistralai/Mistral-Small-Instruct-2409",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.612, "expert_science": 0.392, "math": 0.552, "multi_step_reasoning": 0.562,
-        "code_completion": 0.75, "repo_engineering": 0.12, "tool_call": 0.72, "instruction_following": 0.812,
-        "writing": 0.74, "roleplay": 0.73, "extraction": 0.76, "reasoning_chat": 0.68, "coding_chat": 0.74,
-        "stem_chat": 0.66, "humanities_chat": 0.70, "factuality": 0.56, "long_context_retrieval": 0.62,
-        "rag_synthesis": 0.58, "agentic": 0.14, "commonsense": 0.82
+        "mcq_knowledge": 0.612,
+        "expert_science": 0.392,
+        "math": 0.552,
+        "multi_step_reasoning": 0.562,
+        "code_completion": 0.75,
+        "repo_engineering": 0.12,
+        "tool_call": 0.72,
+        "instruction_following": 0.812,
+        "writing": 0.74,
+        "roleplay": 0.73,
+        "extraction": 0.76,
+        "reasoning_chat": 0.68,
+        "coding_chat": 0.74,
+        "stem_chat": 0.66,
+        "humanities_chat": 0.7,
+        "factuality": 0.56,
+        "long_context_retrieval": 0.62,
+        "rag_synthesis": 0.58,
+        "agentic": 0.14,
+        "commonsense": 0.82
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "mistralai/Mistral-Large-Instruct-2407": {
@@ -287,14 +749,31 @@
       "oll_id": "mistralai/Mistral-Large-Instruct-2407",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.782, "expert_science": 0.512, "math": 0.652, "multi_step_reasoning": 0.692,
-        "code_completion": 0.85, "repo_engineering": 0.20, "tool_call": 0.80, "instruction_following": 0.842,
-        "writing": 0.80, "roleplay": 0.78, "extraction": 0.82, "reasoning_chat": 0.76, "coding_chat": 0.83,
-        "stem_chat": 0.74, "humanities_chat": 0.76, "factuality": 0.60, "long_context_retrieval": 0.70,
-        "rag_synthesis": 0.66, "agentic": 0.20, "commonsense": 0.86
+        "mcq_knowledge": 0.782,
+        "expert_science": 0.512,
+        "math": 0.652,
+        "multi_step_reasoning": 0.692,
+        "code_completion": 0.85,
+        "repo_engineering": 0.2,
+        "tool_call": 0.8,
+        "instruction_following": 0.842,
+        "writing": 0.8,
+        "roleplay": 0.78,
+        "extraction": 0.82,
+        "reasoning_chat": 0.76,
+        "coding_chat": 0.83,
+        "stem_chat": 0.74,
+        "humanities_chat": 0.76,
+        "factuality": 0.6,
+        "long_context_retrieval": 0.7,
+        "rag_synthesis": 0.66,
+        "agentic": 0.2,
+        "commonsense": 0.86
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "microsoft/phi-4": {
@@ -302,14 +781,31 @@
       "oll_id": "microsoft/phi-4",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.642, "expert_science": 0.412, "math": 0.802, "multi_step_reasoning": 0.582,
-        "code_completion": 0.82, "repo_engineering": 0.14, "tool_call": 0.74, "instruction_following": 0.822,
-        "writing": 0.72, "roleplay": 0.70, "extraction": 0.75, "reasoning_chat": 0.78, "coding_chat": 0.76,
-        "stem_chat": 0.80, "humanities_chat": 0.68, "factuality": 0.55, "long_context_retrieval": 0.60,
-        "rag_synthesis": 0.56, "agentic": 0.12, "commonsense": 0.81
+        "mcq_knowledge": 0.642,
+        "expert_science": 0.412,
+        "math": 0.802,
+        "multi_step_reasoning": 0.582,
+        "code_completion": 0.82,
+        "repo_engineering": 0.14,
+        "tool_call": 0.74,
+        "instruction_following": 0.822,
+        "writing": 0.72,
+        "roleplay": 0.7,
+        "extraction": 0.75,
+        "reasoning_chat": 0.78,
+        "coding_chat": 0.76,
+        "stem_chat": 0.8,
+        "humanities_chat": 0.68,
+        "factuality": 0.55,
+        "long_context_retrieval": 0.6,
+        "rag_synthesis": 0.56,
+        "agentic": 0.12,
+        "commonsense": 0.81
       },
       "score_sources": {
-        "mcq_knowledge": "oll:MMLU-PRO Raw", "math": "oll:MATH Lvl 5 Raw", "code_completion": "manual_seed_v0.1.0"
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "math": "oll:MATH Lvl 5 Raw",
+        "code_completion": "manual_seed_v0.1.0"
       }
     },
     "google/gemma-2-9b-it": {
@@ -317,23 +813,345 @@
       "oll_id": "google/gemma-2-9b-it",
       "type": "open",
       "scores": {
-        "mcq_knowledge": 0.532, "expert_science": 0.342, "math": 0.452, "multi_step_reasoning": 0.482,
-        "code_completion": 0.70, "repo_engineering": 0.08, "tool_call": 0.62, "instruction_following": 0.762,
-        "writing": 0.66, "roleplay": 0.65, "extraction": 0.68, "reasoning_chat": 0.60, "coding_chat": 0.68,
-        "stem_chat": 0.56, "humanities_chat": 0.62, "factuality": 0.50, "long_context_retrieval": 0.52,
-        "rag_synthesis": 0.48, "agentic": 0.08, "commonsense": 0.78
+        "mcq_knowledge": 0.532,
+        "expert_science": 0.342,
+        "math": 0.452,
+        "multi_step_reasoning": 0.482,
+        "code_completion": 0.7,
+        "repo_engineering": 0.08,
+        "tool_call": 0.62,
+        "instruction_following": 0.762,
+        "writing": 0.66,
+        "roleplay": 0.65,
+        "extraction": 0.68,
+        "reasoning_chat": 0.6,
+        "coding_chat": 0.68,
+        "stem_chat": 0.56,
+        "humanities_chat": 0.62,
+        "factuality": 0.5,
+        "long_context_retrieval": 0.52,
+        "rag_synthesis": 0.48,
+        "agentic": 0.08,
+        "commonsense": 0.78
       },
-      "score_sources": { "mcq_knowledge": "oll:MMLU-PRO Raw", "instruction_following": "oll:IFEval Raw" }
+      "score_sources": {
+        "mcq_knowledge": "oll:MMLU-PRO Raw",
+        "instruction_following": "oll:IFEval Raw"
+      }
+    },
+    "anthropic/claude-sonnet-4-20250514": {
+      "display_name": "Claude Sonnet 4",
+      "oll_id": "anthropic/claude-sonnet-4-20250514",
+      "type": "proprietary",
+      "scores": {
+        "mcq_knowledge": 0.895,
+        "expert_science": 0.65,
+        "math": 0.81,
+        "multi_step_reasoning": 0.85,
+        "code_completion": 0.93,
+        "repo_engineering": 0.727,
+        "tool_call": 0.9,
+        "instruction_following": 0.882,
+        "writing": 0.97,
+        "roleplay": 0.94,
+        "extraction": 0.92,
+        "reasoning_chat": 0.94,
+        "coding_chat": 0.96,
+        "stem_chat": 0.9,
+        "humanities_chat": 0.91,
+        "factuality": 0.73,
+        "long_context_retrieval": 0.88,
+        "rag_synthesis": 0.84,
+        "agentic": 0.62,
+        "commonsense": 0.91
+      },
+      "score_sources": {
+        "repo_engineering": "anthropic-blog:claude-4-release-2025-05-22:SWE-bench-Verified-72.7%",
+        "agentic": "anthropic-blog:claude-4-release-2025-05-22:Terminal-Bench-estimated",
+        "mcq_knowledge": "estimated_seed_v0.1.1",
+        "expert_science": "estimated_seed_v0.1.1",
+        "math": "estimated_seed_v0.1.1",
+        "multi_step_reasoning": "estimated_seed_v0.1.1",
+        "code_completion": "estimated_seed_v0.1.1",
+        "tool_call": "estimated_seed_v0.1.1",
+        "instruction_following": "estimated_seed_v0.1.1"
+      }
+    },
+    "anthropic/claude-haiku-4-20250514": {
+      "display_name": "Claude Haiku 4",
+      "oll_id": "anthropic/claude-haiku-4-20250514",
+      "type": "proprietary",
+      "scores": {
+        "mcq_knowledge": 0.843,
+        "expert_science": 0.48,
+        "math": 0.72,
+        "multi_step_reasoning": 0.77,
+        "code_completion": 0.88,
+        "repo_engineering": 0.28,
+        "tool_call": 0.84,
+        "instruction_following": 0.858,
+        "writing": 0.87,
+        "roleplay": 0.85,
+        "extraction": 0.87,
+        "reasoning_chat": 0.85,
+        "coding_chat": 0.88,
+        "stem_chat": 0.82,
+        "humanities_chat": 0.83,
+        "factuality": 0.66,
+        "long_context_retrieval": 0.76,
+        "rag_synthesis": 0.74,
+        "agentic": 0.32,
+        "commonsense": 0.86
+      },
+      "score_sources": {
+        "mcq_knowledge": "estimated_seed_v0.1.1",
+        "expert_science": "estimated_seed_v0.1.1",
+        "math": "estimated_seed_v0.1.1",
+        "multi_step_reasoning": "estimated_seed_v0.1.1",
+        "code_completion": "estimated_seed_v0.1.1",
+        "repo_engineering": "estimated_seed_v0.1.1",
+        "tool_call": "estimated_seed_v0.1.1",
+        "instruction_following": "estimated_seed_v0.1.1",
+        "agentic": "estimated_seed_v0.1.1"
+      }
+    },
+    "anthropic/claude-opus-4-20250514": {
+      "display_name": "Claude Opus 4",
+      "oll_id": "anthropic/claude-opus-4-20250514",
+      "type": "proprietary",
+      "scores": {
+        "mcq_knowledge": 0.905,
+        "expert_science": 0.695,
+        "math": 0.845,
+        "multi_step_reasoning": 0.875,
+        "code_completion": 0.935,
+        "repo_engineering": 0.725,
+        "tool_call": 0.91,
+        "instruction_following": 0.885,
+        "writing": 0.98,
+        "roleplay": 0.95,
+        "extraction": 0.93,
+        "reasoning_chat": 0.97,
+        "coding_chat": 0.97,
+        "stem_chat": 0.93,
+        "humanities_chat": 0.93,
+        "factuality": 0.76,
+        "long_context_retrieval": 0.9,
+        "rag_synthesis": 0.87,
+        "agentic": 0.68,
+        "commonsense": 0.92
+      },
+      "score_sources": {
+        "repo_engineering": "anthropic-blog:claude-4-release-2025-05-22:SWE-bench-Verified-72.5%",
+        "agentic": "estimated_seed_v0.1.1",
+        "mcq_knowledge": "estimated_seed_v0.1.1",
+        "expert_science": "estimated_seed_v0.1.1",
+        "math": "estimated_seed_v0.1.1",
+        "multi_step_reasoning": "estimated_seed_v0.1.1",
+        "code_completion": "estimated_seed_v0.1.1",
+        "tool_call": "estimated_seed_v0.1.1",
+        "instruction_following": "estimated_seed_v0.1.1"
+      }
+    },
+    "google/gemini-2.5-flash-preview-05-20": {
+      "display_name": "Gemini 2.5 Flash",
+      "oll_id": "google/gemini-2.5-flash-preview-05-20",
+      "type": "proprietary",
+      "scores": {
+        "mcq_knowledge": 0.892,
+        "expert_science": 0.62,
+        "math": 0.835,
+        "multi_step_reasoning": 0.855,
+        "code_completion": 0.92,
+        "repo_engineering": 0.54,
+        "tool_call": 0.89,
+        "instruction_following": 0.875,
+        "writing": 0.95,
+        "roleplay": 0.92,
+        "extraction": 0.91,
+        "reasoning_chat": 0.93,
+        "coding_chat": 0.95,
+        "stem_chat": 0.9,
+        "humanities_chat": 0.89,
+        "factuality": 0.72,
+        "long_context_retrieval": 0.87,
+        "rag_synthesis": 0.83,
+        "agentic": 0.46,
+        "commonsense": 0.91
+      },
+      "score_sources": {
+        "mcq_knowledge": "google-blog:gemini-2.5-flash-release-2025-05:MMLU-89.2%",
+        "expert_science": "google-blog:gemini-2.5-flash-release-2025-05:GPQA-62%",
+        "code_completion": "google-blog:gemini-2.5-flash-release-2025-05:HumanEval-89%",
+        "repo_engineering": "estimated_seed_v0.1.1",
+        "agentic": "estimated_seed_v0.1.1",
+        "math": "estimated_seed_v0.1.1"
+      }
+    },
+    "openai/o3-2025-04-16": {
+      "display_name": "o3",
+      "oll_id": "openai/o3-2025-04-16",
+      "type": "proprietary",
+      "scores": {
+        "mcq_knowledge": 0.915,
+        "expert_science": 0.877,
+        "math": 0.962,
+        "multi_step_reasoning": 0.92,
+        "code_completion": 0.935,
+        "repo_engineering": 0.717,
+        "tool_call": 0.88,
+        "instruction_following": 0.87,
+        "writing": 0.9,
+        "roleplay": 0.85,
+        "extraction": 0.88,
+        "reasoning_chat": 0.97,
+        "coding_chat": 0.93,
+        "stem_chat": 0.96,
+        "humanities_chat": 0.86,
+        "factuality": 0.78,
+        "long_context_retrieval": 0.85,
+        "rag_synthesis": 0.82,
+        "agentic": 0.58,
+        "commonsense": 0.9
+      },
+      "score_sources": {
+        "expert_science": "openai-blog:o3-release-2025-04:GPQA-Diamond-87.7%",
+        "repo_engineering": "openai-blog:o3-release-2025-04:SWE-bench-Verified-71.7%",
+        "math": "openai-blog:o3-release-2025-04:AIME-2025",
+        "agentic": "estimated_seed_v0.1.1",
+        "mcq_knowledge": "estimated_seed_v0.1.1",
+        "multi_step_reasoning": "estimated_seed_v0.1.1"
+      }
+    },
+    "openai/o4-mini-2025-04-16": {
+      "display_name": "o4-mini",
+      "oll_id": "openai/o4-mini-2025-04-16",
+      "type": "proprietary",
+      "scores": {
+        "mcq_knowledge": 0.89,
+        "expert_science": 0.797,
+        "math": 0.94,
+        "multi_step_reasoning": 0.89,
+        "code_completion": 0.92,
+        "repo_engineering": 0.68,
+        "tool_call": 0.86,
+        "instruction_following": 0.86,
+        "writing": 0.87,
+        "roleplay": 0.83,
+        "extraction": 0.86,
+        "reasoning_chat": 0.96,
+        "coding_chat": 0.91,
+        "stem_chat": 0.94,
+        "humanities_chat": 0.84,
+        "factuality": 0.75,
+        "long_context_retrieval": 0.82,
+        "rag_synthesis": 0.79,
+        "agentic": 0.48,
+        "commonsense": 0.88
+      },
+      "score_sources": {
+        "expert_science": "openai-blog:o4-mini-release-2025-04:GPQA-Diamond-79.7%",
+        "math": "openai-blog:o4-mini-release-2025-04:AIME-2025",
+        "repo_engineering": "estimated_seed_v0.1.1",
+        "agentic": "estimated_seed_v0.1.1",
+        "mcq_knowledge": "estimated_seed_v0.1.1"
+      }
+    },
+    "Qwen/Qwen3-72B": {
+      "display_name": "Qwen3-72B",
+      "oll_id": "Qwen/Qwen3-72B",
+      "type": "open",
+      "deployment": "self_hosted",
+      "scores": {
+        "mcq_knowledge": 0.875,
+        "expert_science": 0.55,
+        "math": 0.87,
+        "multi_step_reasoning": 0.855,
+        "code_completion": 0.895,
+        "repo_engineering": 0.35,
+        "tool_call": 0.85,
+        "instruction_following": 0.855,
+        "writing": 0.85,
+        "roleplay": 0.83,
+        "extraction": 0.85,
+        "reasoning_chat": 0.86,
+        "coding_chat": 0.88,
+        "stem_chat": 0.84,
+        "humanities_chat": 0.8,
+        "factuality": 0.68,
+        "long_context_retrieval": 0.78,
+        "rag_synthesis": 0.75,
+        "agentic": 0.3,
+        "commonsense": 0.87
+      },
+      "score_sources": {
+        "mcq_knowledge": "qwen-blog:qwen3-release-2025-04:MMLU-87.5%",
+        "math": "qwen-blog:qwen3-release-2025-04:MATH-500",
+        "code_completion": "qwen-blog:qwen3-release-2025-04:HumanEval",
+        "expert_science": "estimated_seed_v0.1.1",
+        "agentic": "estimated_seed_v0.1.1",
+        "repo_engineering": "estimated_seed_v0.1.1"
+      }
+    },
+    "meta-llama/Llama-4-Maverick-17B-128E-Instruct": {
+      "display_name": "Llama 4 Maverick",
+      "oll_id": "meta-llama/Llama-4-Maverick-17B-128E-Instruct",
+      "type": "open",
+      "deployment": "self_hosted",
+      "scores": {
+        "mcq_knowledge": 0.875,
+        "expert_science": 0.516,
+        "math": 0.795,
+        "multi_step_reasoning": 0.84,
+        "code_completion": 0.88,
+        "repo_engineering": 0.32,
+        "tool_call": 0.83,
+        "instruction_following": 0.855,
+        "writing": 0.86,
+        "roleplay": 0.84,
+        "extraction": 0.86,
+        "reasoning_chat": 0.85,
+        "coding_chat": 0.87,
+        "stem_chat": 0.83,
+        "humanities_chat": 0.81,
+        "factuality": 0.67,
+        "long_context_retrieval": 0.8,
+        "rag_synthesis": 0.77,
+        "agentic": 0.26,
+        "commonsense": 0.87
+      },
+      "score_sources": {
+        "mcq_knowledge": "meta-blog:llama4-release-2025-04:MMLU-87.5%",
+        "code_completion": "meta-blog:llama4-release-2025-04:HumanEval",
+        "expert_science": "estimated_seed_v0.1.1",
+        "agentic": "estimated_seed_v0.1.1",
+        "repo_engineering": "estimated_seed_v0.1.1"
+      }
     }
   },
   "coverage": {
     "total_models": 20,
     "metrics_with_data": {
-      "mcq_knowledge": 20, "expert_science": 20, "math": 20, "multi_step_reasoning": 20,
-      "code_completion": 20, "repo_engineering": 20, "tool_call": 20, "instruction_following": 20,
-      "writing": 20, "roleplay": 20, "extraction": 20, "reasoning_chat": 20, "coding_chat": 20,
-      "stem_chat": 20, "humanities_chat": 20, "factuality": 20, "long_context_retrieval": 20,
-      "rag_synthesis": 20, "agentic": 20, "commonsense": 20
+      "mcq_knowledge": 20,
+      "expert_science": 20,
+      "math": 20,
+      "multi_step_reasoning": 20,
+      "code_completion": 20,
+      "repo_engineering": 20,
+      "tool_call": 20,
+      "instruction_following": 20,
+      "writing": 20,
+      "roleplay": 20,
+      "extraction": 20,
+      "reasoning_chat": 20,
+      "coding_chat": 20,
+      "stem_chat": 20,
+      "humanities_chat": 20,
+      "factuality": 20,
+      "long_context_retrieval": 20,
+      "rag_synthesis": 20,
+      "agentic": 20,
+      "commonsense": 20
     },
     "notes": [
       "Committed snapshot for offline development. Refresh with: pnpm run fetch-quality-scores",

@@ -23,6 +23,9 @@ export interface AppState {
   hasAgentReport: boolean
   agentScanStatus: JobStatus
   agentScanError: string | null
+  hasAgentDeepReport: boolean
+  agentDeepScanStatus: JobStatus
+  agentDeepScanError: string | null
 }
 
 export interface Finding {
@@ -187,6 +190,73 @@ export interface AgentModelSummary {
   inputTokens: number
   outputTokens: number
   costUsd: number
+}
+
+export type ModelTier = 'haiku' | 'sonnet' | 'opus'
+
+export interface AgentSessionReport {
+  session_id: string
+  project_path: string
+  tool: 'nanoclaw' | 'claude-code'
+  primary_model: string
+  first_timestamp: string
+  last_timestamp: string
+  tokens: {
+    input: number
+    output: number
+    cache_creation: number
+    cache_read: number
+  }
+  cost_usd: number
+  message_count: number
+  current_quality: number | null
+  classification: {
+    primary_metric: string | null
+    metric_ids: string[]
+    task_tier: ModelTier
+    scores: Record<string, number>
+    classifier_runtime: string
+  }
+  recommendation: {
+    kind: 'downgrade' | 'upgrade'
+    alternative_model: string
+    savings_usd: number
+    savings_pct: number
+    cost_delta_usd: number
+    alternative_quality: number | null
+    quality_delta: number | null
+  } | null
+  reconstruction: {
+    turnCount: number
+    toolNames: string[]
+    toolCallCount: number
+    likelyPruned: boolean
+    missingSystemPrompt: true
+    missingFileContents: boolean
+    missingToolSchemas: boolean
+  }
+}
+
+export interface AgentDeepReport {
+  scanned_at: string
+  totals: {
+    sessions: number
+    messages: number
+    inputTokens: number
+    outputTokens: number
+    costUsd: number
+    savingsUsd: number
+    savingsPct: number
+  }
+  sessions: AgentSessionReport[]
+  by_metric: Record<string, { sessions: number; costUsd: number; savingsUsd: number }>
+  by_recommendation: Record<string, { sessions: number; savingsUsd: number }>
+  reconstruction_coverage: {
+    sessions_likely_pruned: number
+    sessions_missing_file_contents: number
+    sessions_with_tool_calls: number
+    note: string
+  }
 }
 
 export interface AgentReport {

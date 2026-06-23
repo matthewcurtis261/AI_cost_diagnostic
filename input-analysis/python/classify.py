@@ -32,7 +32,7 @@ except ImportError:
     AutoTokenizer = None  # type: ignore
 
 
-class DistilBertMetricClassifier(nn.Module):
+class DistilBertMetricClassifier(nn.Module if nn is not None else object):
     def __init__(self, base_model: str, num_labels: int, dropout: float = 0.1):
         super().__init__()
         self.base_model_name = base_model

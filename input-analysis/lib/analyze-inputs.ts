@@ -7,7 +7,7 @@ import {
   extractInputText,
   metricWeightsFromPrediction,
 } from './classifier.js';
-import { pickBestAlternative, blendedQualityForModel } from './recommendation.js';
+import { pickBestAlternative, taskQualityForModel } from './recommendation.js';
 import {
   loadModelAliases,
   loadQualityScores,
@@ -187,13 +187,15 @@ export function buildAnalyzeInputsReport(
       event.tokens.input_tokens,
       event.tokens.output_tokens,
       modelPricing,
+      event.tokens.cache_creation_tokens ?? 0,
+      event.tokens.cache_read_tokens ?? 0,
     );
 
     if (!modelPricing) {
       coverageNotes.push(`No pricing entry for model "${event.model}" (${event.event_id})`);
     }
 
-    const currentQuality = blendedQualityForModel(
+    const currentQuality = taskQualityForModel(
       event.model,
       metricWeights,
       pricingTable,
@@ -205,6 +207,8 @@ export function buildAnalyzeInputsReport(
       event.call_type,
       event.tokens.input_tokens,
       event.tokens.output_tokens,
+      event.tokens.cache_creation_tokens ?? 0,
+      event.tokens.cache_read_tokens ?? 0,
       pricingTable,
       {
         metricWeights,

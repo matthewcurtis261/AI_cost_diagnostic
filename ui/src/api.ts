@@ -1,4 +1,4 @@
-import type { AppState, FindingsDocument, EstimateReport, AnalyzeInputsReport, NanoclawStatus, QualityPreset, AgentReport } from './types'
+import type { AppState, FindingsDocument, EstimateReport, AnalyzeInputsReport, NanoclawStatus, QualityPreset, AgentReport, AgentDeepReport } from './types'
 
 async function fetchJSON<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, options)
@@ -79,4 +79,12 @@ export function startAgentScan(): Promise<void> {
 
 export function getAgentReport(): Promise<AgentReport> {
   return fetchJSON<AgentReport>('/api/agent-report')
+}
+
+export function startAgentDeepScan(): Promise<void> {
+  return fetchJSON('/api/agent-scan-deep', { method: 'POST' })
+}
+
+export function getAgentDeepReport(): Promise<AgentDeepReport> {
+  return fetchJSON<AgentDeepReport>('/api/agent-deep-report')
 }

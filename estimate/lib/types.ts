@@ -60,6 +60,8 @@ export interface ModelPricing {
   deployment?: 'api' | 'self_hosted';
   api_via?: string;
   quality_score_key?: string;
+  cache_creation_per_million?: number;
+  cache_read_per_million?: number;
 }
 
 export interface PricingTable {
@@ -100,6 +102,8 @@ export interface UsageBreakdown {
 export interface CostBreakdown {
   input_usd: number;
   output_usd: number;
+  cache_creation_usd: number;
+  cache_read_usd: number;
   total_usd: number;
 }
 
