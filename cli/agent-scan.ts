@@ -65,6 +65,9 @@ function calcCostHaiku(
   )
 }
 
+// Cache reads before a compact are replaced with this many tokens total
+const COMPACT_RESET_TOKENS = 10_000
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface UsageEntry {
@@ -84,6 +87,7 @@ interface UsageEntry {
 
 interface RawEntry {
   type?: string
+  subtype?: string
   message?: {
     role?: string
     model?: string
@@ -100,48 +104,84 @@ interface RawEntry {
 }
 
 function parseSessionFile(filePath: string, projectPath: string): UsageEntry[] {
-  const entries: UsageEntry[] = []
   let content: string
   try {
     content = fs.readFileSync(filePath, 'utf-8')
   } catch {
-    return entries
+    return []
   }
 
   const lines = content.split('\n')
+  const assistantRaw: RawEntry[] = []
+  const compactTimestamps: string[] = []
+
   for (const line of lines) {
     if (!line.trim()) continue
     let entry: RawEntry
     try { entry = JSON.parse(line) } catch { continue }
 
-    if (entry.type !== 'assistant') continue
-    const usage = entry.message?.usage
-    if (!usage) continue
-    const model = entry.message?.model ?? 'unknown'
-    const cwd = entry.cwd ?? projectPath
+    if (entry.type === 'assistant') assistantRaw.push(entry)
+    if (entry.type === 'system' && entry.subtype === 'compact_boundary' && entry.timestamp) {
+      compactTimestamps.push(entry.timestamp)
+    }
+  }
 
-    const input  = usage.input_tokens  ?? 0
-    const output = usage.output_tokens ?? 0
+  if (assistantRaw.length === 0) return []
+
+  const sortedCompacts = [...compactTimestamps].sort()
+
+  function makeEntry(raw: RawEntry, correctedCacheRead: number): UsageEntry | null {
+    const usage = raw.message?.usage
+    if (!usage) return null
+    const input   = usage.input_tokens  ?? 0
+    const output  = usage.output_tokens ?? 0
     const cCreate = usage.cache_creation_input_tokens ?? 0
-    const cRead   = usage.cache_read_input_tokens     ?? 0
-
-    const tool: 'nanoclaw' | 'claude-code' = cwd.toLowerCase().includes('nanoclaw')
-      ? 'nanoclaw'
-      : 'claude-code'
-
-    entries.push({
-      sessionId:           entry.sessionId ?? path.basename(filePath, '.jsonl'),
+    const cRead   = correctedCacheRead
+    const model   = raw.message?.model ?? 'unknown'
+    const cwd     = raw.cwd ?? projectPath
+    const tool: 'nanoclaw' | 'claude-code' = cwd.toLowerCase().includes('nanoclaw') ? 'nanoclaw' : 'claude-code'
+    return {
+      sessionId:           raw.sessionId ?? path.basename(filePath, '.jsonl'),
       projectPath:         cwd,
       tool,
       model,
-      timestamp:           entry.timestamp ?? new Date().toISOString(),
+      timestamp:           raw.timestamp ?? new Date().toISOString(),
       inputTokens:         input,
       outputTokens:        output,
       cacheCreationTokens: cCreate,
       cacheReadTokens:     cRead,
       costUsd:             calcCost(input, output, cCreate, cRead, model),
-    })
+    }
   }
+
+  const entries: UsageEntry[] = []
+  let segmentStart = 0
+
+  for (const compactTs of sortedCompacts) {
+    let nextStart = segmentStart
+    let segmentCacheRead = 0
+    for (let i = segmentStart; i < assistantRaw.length; i++) {
+      if ((assistantRaw[i].timestamp ?? '') > compactTs) { nextStart = i; break }
+      if (i === assistantRaw.length - 1) nextStart = assistantRaw.length
+      segmentCacheRead += assistantRaw[i].message?.usage?.cache_read_input_tokens ?? 0
+    }
+    // Pre-compact segment: zero out all cacheRead, assign correction to last entry
+    const correctionTokens = segmentCacheRead > 0 ? COMPACT_RESET_TOKENS : 0
+    for (let i = segmentStart; i < nextStart; i++) {
+      const cacheRead = (i === nextStart - 1) ? correctionTokens : 0
+      const e = makeEntry(assistantRaw[i], cacheRead)
+      if (e) entries.push(e)
+    }
+    segmentStart = nextStart
+  }
+
+  // Final segment (after last compact, or entire session if no compacts): actual values
+  for (let i = segmentStart; i < assistantRaw.length; i++) {
+    const cacheRead = assistantRaw[i].message?.usage?.cache_read_input_tokens ?? 0
+    const e = makeEntry(assistantRaw[i], cacheRead)
+    if (e) entries.push(e)
+  }
+
   return entries
 }
 

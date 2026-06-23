@@ -150,6 +150,15 @@ interface RawUserEntry {
   cwd?: string
 }
 
+interface RawSystemEntry {
+  type: 'system'
+  subtype: string
+  timestamp?: string
+}
+
+// Cache reads before a compact are replaced with this many tokens (the post-compact summary size)
+const COMPACT_RESET_TOKENS = 10_000
+
 // ── Fingerprint construction ──────────────────────────────────────────────────
 
 const MAX_FIRST_MSG   = 500   // chars from the first human message
@@ -256,6 +265,7 @@ interface SessionData {
   cacheReadTokens: number
   costUsd: number
   messageCount: number
+  compactCount: number
   fingerprint: SessionFingerprint
   rawEntries: Array<RawAssistantEntry | RawUserEntry>
 }
@@ -274,24 +284,65 @@ function parseSessionFile(
   const lines = content.split('\n').filter(l => l.trim())
   const assistantEntries: RawAssistantEntry[] = []
   const userEntries: RawUserEntry[] = []
+  const compactTimestamps: string[] = []
 
   for (const line of lines) {
-    let entry: { type?: string } & Record<string, unknown>
+    let entry: { type?: string; subtype?: string } & Record<string, unknown>
     try { entry = JSON.parse(line) } catch { continue }
 
     if (entry.type === 'assistant') assistantEntries.push(entry as unknown as RawAssistantEntry)
     if (entry.type === 'user')      userEntries.push(entry as unknown as RawUserEntry)
+    if (entry.type === 'system' && entry.subtype === 'compact_boundary') {
+      const ts = (entry as unknown as RawSystemEntry).timestamp
+      if (ts) compactTimestamps.push(ts)
+    }
   }
 
   if (assistantEntries.length === 0) return null
 
-  // Token/cost totals from assistant entries (same as agent-scan.ts)
+  // Token/cost totals from assistant entries, accounting for compact boundaries.
+  // For each segment of turns before a compact, cache reads are replaced with
+  // COMPACT_RESET_TOKENS (the post-compact summary size) instead of their actual
+  // (growing) values, since those turns' context was erased by the compact.
   let inputTokens = 0, outputTokens = 0, cacheCreate = 0, cacheRead = 0
   const modelCounts: Record<string, number> = {}
   let firstTimestamp = assistantEntries[0].timestamp ?? ''
   let lastTimestamp  = assistantEntries[assistantEntries.length - 1].timestamp ?? ''
 
-  for (const e of assistantEntries) {
+  // Sort compact boundaries ascending
+  const sortedCompacts = [...compactTimestamps].sort()
+
+  // Split assistant entries into segments separated by compact boundaries.
+  // Each segment except the last contributed a compacted context — substitute
+  // its cache_read total with COMPACT_RESET_TOKENS.
+  let segmentStart = 0
+  for (const compactTs of sortedCompacts) {
+    // Find entries in this segment (before this compact boundary)
+    let segmentCacheRead = 0
+    let nextStart = segmentStart
+    for (let i = segmentStart; i < assistantEntries.length; i++) {
+      const e = assistantEntries[i]
+      if ((e.timestamp ?? '') > compactTs) { nextStart = i; break }
+      if (i === assistantEntries.length - 1) nextStart = assistantEntries.length
+
+      const u = e.message.usage ?? {}
+      inputTokens  += u.input_tokens  ?? 0
+      outputTokens += u.output_tokens ?? 0
+      cacheCreate  += u.cache_creation_input_tokens ?? 0
+      segmentCacheRead += u.cache_read_input_tokens ?? 0
+      const model = e.message.model ?? 'unknown'
+      modelCounts[model] = (modelCounts[model] ?? 0) + 1
+      if (e.timestamp && e.timestamp < firstTimestamp) firstTimestamp = e.timestamp
+      if (e.timestamp && e.timestamp > lastTimestamp)  lastTimestamp  = e.timestamp
+    }
+    // Replace the entire pre-compact segment's cache reads with the reset amount
+    cacheRead += segmentCacheRead > 0 ? COMPACT_RESET_TOKENS : 0
+    segmentStart = nextStart
+  }
+
+  // Final segment (after last compact, or entire session if no compacts): use actual values
+  for (let i = segmentStart; i < assistantEntries.length; i++) {
+    const e = assistantEntries[i]
     const u = e.message.usage ?? {}
     inputTokens  += u.input_tokens  ?? 0
     outputTokens += u.output_tokens ?? 0
@@ -324,6 +375,7 @@ function parseSessionFile(
     cacheReadTokens:     cacheRead,
     costUsd:             calcCost(inputTokens, outputTokens, cacheCreate, cacheRead, primaryModel),
     messageCount:        assistantEntries.length,
+    compactCount:        compactTimestamps.length,
     fingerprint:         buildFingerprint(allEntries),
     rawEntries:          allEntries,
   }
@@ -346,6 +398,7 @@ interface SessionReport {
   }
   cost_usd: number
   message_count: number
+  compact_count: number
   current_quality: number | null
   classification: {
     primary_metric: string | null
@@ -531,6 +584,7 @@ function buildReport(sessions: SessionData[]): object {
       },
       cost_usd:      s.costUsd,
       message_count: s.messageCount,
+      compact_count: s.compactCount,
       classification: {
         primary_metric:   cls.primary_metric,
         metric_ids:       cls.metric_ids,

@@ -21,6 +21,18 @@ function fmtDate(iso: string) {
   return new Date(iso).toLocaleString()
 }
 
+function fmtDateRange(first: string, last: string) {
+  const a = new Date(first)
+  const b = new Date(last)
+  const sameDay = a.toDateString() === b.toDateString()
+  const dateOpts: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' }
+  const timeOpts: Intl.DateTimeFormatOptions = { hour: 'numeric', minute: '2-digit' }
+  if (sameDay) {
+    return `${a.toLocaleDateString(undefined, { ...dateOpts, year: 'numeric' })} · ${a.toLocaleTimeString(undefined, timeOpts)} – ${b.toLocaleTimeString(undefined, timeOpts)}`
+  }
+  return `${a.toLocaleDateString(undefined, dateOpts)} – ${b.toLocaleDateString(undefined, { ...dateOpts, year: 'numeric' })}`
+}
+
 // ── Trend chart ───────────────────────────────────────────────────────────────
 
 function TrendChart({ data, metric }: { data: AgentTrendBucket[]; metric: 'costUsd' | 'inputTokens' | 'outputTokens' }) {
@@ -151,8 +163,15 @@ function SessionsTable({ sessions }: { sessions: AgentSessionReport[] }) {
               <tr key={s.session_id}
                 style={{ borderBottom: '1px solid var(--border)', cursor: 'pointer' }}
                 onClick={() => setExpanded(isOpen ? null : s.session_id)}>
-                <td style={{ padding: '7px 8px', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={s.project_path}>
-                  <span style={{ marginRight: 4, opacity: 0.5 }}>{isOpen ? '▾' : '▸'}</span>{label}
+                <td style={{ padding: '7px 8px', maxWidth: 220 }} title={s.project_path}>
+                  <div style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                    <span style={{ marginRight: 4, opacity: 0.5 }}>{isOpen ? '▾' : '▸'}</span>{label}
+                  </div>
+                  {s.first_timestamp && s.last_timestamp && (
+                    <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 1, whiteSpace: 'nowrap' }}>
+                      {fmtDateRange(s.first_timestamp, s.last_timestamp)}
+                    </div>
+                  )}
                 </td>
                 <td style={{ padding: '7px 8px', fontFamily: 'monospace', fontSize: 11, whiteSpace: 'nowrap' }}>{s.primary_model}</td>
                 <td style={{ padding: '7px 8px' }}><MetricBadge metric={s.classification.primary_metric} /></td>
@@ -192,7 +211,7 @@ function SessionsTable({ sessions }: { sessions: AgentSessionReport[] }) {
                       </div>
                       <div>
                         <div style={{ color: 'var(--text-muted)', marginBottom: 4, fontWeight: 600 }}>Reconstruction notes</div>
-                        <div>{s.reconstruction.turnCount} human turns · {s.reconstruction.toolCallCount} tool calls</div>
+                        <div>{s.reconstruction.turnCount} human turns · {s.reconstruction.toolCallCount} tool calls{s.compact_count > 0 ? ` · ${s.compact_count} compact${s.compact_count > 1 ? 's' : ''}` : ''}</div>
                         {s.reconstruction.toolNames.length > 0 && (
                           <div style={{ fontFamily: 'monospace', fontSize: 11, marginTop: 2 }}>Tools: {s.reconstruction.toolNames.join(', ')}</div>
                         )}
